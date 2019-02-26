@@ -22,7 +22,7 @@ function doConvert(config){
             blob
         });
     } else {
-        const path = config.wasmPath || "https://cdn.dhtmlx.com/libs/json2excel/1.wasm";
+        const path = config.wasmPath || "https://cdn.dhtmlx.com/libs/json2excel/1.0/lib.wasm";
 
         wasm_bindgen(path).then(() => {
             import_to_xlsx = wasm_bindgen.import_to_xlsx;

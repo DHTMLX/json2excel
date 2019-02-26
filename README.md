@@ -14,11 +14,16 @@ yarn build
 yarn build-wasm
 ```
 
+### CDN links
+
+- https://cdn.dhtmlx.com/libs/json2excel/1.0/worker.js 
+- https://cdn.dhtmlx.com/libs/json2excel/1.0/lib.wasm
+
 ### How to use
 
 ```js
 // worker.js
-import("json2excel-wasm")
+import "json2excel-wasm";
 ```
 
 ```js
