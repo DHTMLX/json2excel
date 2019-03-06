@@ -1,5 +1,7 @@
-JSON to Excell 
+JSON2Excel 
 --------------
+
+JSON2Excel is a Rust and WebAssembly-based library that allows converting JSON files into Excel ones at ease.
 
 [![npm version](https://badge.fury.io/js/json2excel-wasm.svg)](https://badge.fury.io/js/json2excel-wasm) 
 
@@ -14,17 +16,21 @@ yarn build
 yarn build-wasm
 ```
 
-### CDN links
+### How to use via npm
 
-- https://cdn.dhtmlx.com/libs/json2excel/1.0/worker.js 
-- https://cdn.dhtmlx.com/libs/json2excel/1.0/lib.wasm
+- install the module
 
-### How to use
+```js
+yarn add json2excel-wasm
+```
+- import the module
 
 ```js
 // worker.js
 import "json2excel-wasm";
 ```
+
+- use the module in the app
 
 ```js
 // app.js
@@ -51,10 +57,22 @@ worker.addEventListener("message", e => {
     }
 });
 ```
+### How to use from CDN
 
-### License 
+CDN links are the following:
 
-MIT
+- https://cdn.dhtmlx.com/libs/json2excel/1.0/worker.js 
+- https://cdn.dhtmlx.com/libs/json2excel/1.0/lib.wasm
+
+In case you use build system like webpack, it is advised to wrap the link to CDN source into a blob object to avoid possible breakdowns:
+
+```js
+var url = window.URL.createObjectURL(new Blob([
+    "importScripts('https://cdn.dhtmlx.com/libs/json2excel/1.0/worker.js');"
+], { type: "text/javascript" }));
+
+var worker = new Worker(url);
+```
 
 ### Input format
 
@@ -116,3 +134,8 @@ interface IStyle {
     format?: string;
 }
 ```
+
+
+### License 
+
+MIT
