@@ -124,12 +124,14 @@ interface IDataCell{
 
 interface IStyle {
     fontSize?: string;
-    fontFamily?: string;
+    align?: string;
 
-    borderLeft?: string;
-    borderTop?: string;
-    borderBottom?: string;
-    borderRight?: string;
+    background?: string;
+    color?: string;
+
+    fontWeight?: string;
+    fontStyle?: string;
+    textDecoration?: string;
 
     format?: string;
 }
