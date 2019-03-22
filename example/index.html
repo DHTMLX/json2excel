@@ -29,9 +29,10 @@
             worker.postMessage({ 
                 type: "convert",
                 data: JSON.parse(dataArea.value),
-                // optional, use CDN by default
-                // path is relative to webworker js file
-                wasmPath: "wasm/xlsx_import_bg.wasm"
+                // path relative to js file of worker
+                // wasmPath: "wasm/xlsx_import_bg.wasm"
+                // if not provided, will load wasm file from CDN
+                // https://cdn.dhtmlx.com/libs/json2excel/1.0/lib.wasm
             });
         }
 
