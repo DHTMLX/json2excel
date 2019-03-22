@@ -2,7 +2,7 @@
   "name": "json2excel-wasm",
   "description": "WASM based web worker for generating excel files from json",
   "keywords": "excel, convert, wasm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "author": {
     "name": "Aleksei Kolosov"
