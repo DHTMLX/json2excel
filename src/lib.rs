@@ -459,12 +459,11 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
     }
     sheet_data.add_children(sheet_data_rows);
 
-    let mut worksheet_children = vec![sheet_views];
+    let mut worksheet_children = vec![sheet_views, sheet_format_pr];
     if cols_children.len() > 0{ 
         cols.add_children(cols_children);
         worksheet_children.push(cols);
     }
-    worksheet_children.push(sheet_format_pr);
     worksheet_children.push(sheet_data);
 
     match merged {
