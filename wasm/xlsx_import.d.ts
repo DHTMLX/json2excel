@@ -1,2 +1,6 @@
 /* tslint:disable */
-export function import_to_xlsx(arg0: any): Uint8Array;
+/**
+* @param {any} raw_data 
+* @returns {Uint8Array} 
+*/
+export function import_to_xlsx(raw_data: any): Uint8Array;

@@ -120,13 +120,15 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
 
                                 match &cell.v {
                                     Some(value) => {
-                                        match value.parse::<f64>() {
-                                            Ok(_) => {
-                                                inner_cell.value = CellValue::Value(value.to_owned());
-                                            },
-                                            Err(_) => {
-                                                inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
-                                                shared_strings.push(value.to_owned());
+                                        if !value.is_empty() {
+                                            match value.parse::<f64>() {
+                                                Ok(_) => {
+                                                    inner_cell.value = CellValue::Value(value.to_owned());
+                                                },
+                                                Err(_) => {
+                                                    inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
+                                                    shared_strings.push(value.to_owned());
+                                                }
                                             }
                                         }
                                     }
