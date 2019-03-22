@@ -126,8 +126,15 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                                     inner_cell.value = CellValue::Value(value.to_owned());
                                                 },
                                                 Err(_) => {
-                                                    inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
-                                                    shared_strings.push(value.to_owned());
+                                                    match shared_strings.iter().position(|s| s == value) {
+                                                        Some(index) => {
+                                                            inner_cell.value = CellValue::SharedString(index as u32);
+                                                        },
+                                                        None => {
+                                                            inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
+                                                            shared_strings.push(value.to_owned());
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
