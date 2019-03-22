@@ -36,7 +36,7 @@ impl<'a> Element<'a> {
     }
     pub fn to_xml(&mut self) -> String {
         let mut result = String::new();
-        result.push_str(r#"<?xml version="1.0" encoding="ISO-8859-1"?>"#);
+        result.push_str(r#"<?xml version="1.0" encoding="UTF-8"?>"#);
         result.push_str(&self.to_string());
         result
     }
