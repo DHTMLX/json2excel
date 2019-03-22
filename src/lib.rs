@@ -389,7 +389,7 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
                         column_element
                             .add_attr("min", (index + 1).to_string())
                             .add_attr("max", (index + 1).to_string())
-                            .add_attr("custom_width", "1")
+                            .add_attr("customWidth", "1")
                             .add_attr("width", (col.width / WIDTH_COEF).to_string());
                         cols_children.push(column_element)
                     },
