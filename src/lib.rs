@@ -97,6 +97,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
     let data: SpreadsheetData = raw_data.into_serde().unwrap();
 
     let mut shared_strings = vec!();
+    let mut shared_strings_count = 0;
     let style_table = StyleTable::new(data.styles);
 
     let mut sheets_info: Vec<(String, String)> = vec!();
@@ -126,6 +127,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                                     inner_cell.value = CellValue::Value(value.to_owned());
                                                 },
                                                 Err(_) => {
+                                                    shared_strings_count += 1;
                                                     match shared_strings.iter().position(|s| s == value) {
                                                         Some(index) => {
                                                             inner_cell.value = CellValue::SharedString(index as u32);
@@ -201,7 +203,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
     zip.start_file("xl/workbook.xml", options).unwrap();
     zip.write_all(workbook.as_bytes()).unwrap();
     zip.start_file("xl/sharedStrings.xml", options).unwrap();
-    zip.write_all(get_shared_strings_data(shared_strings).as_bytes()).unwrap();
+    zip.write_all(get_shared_strings_data(shared_strings, shared_strings_count).as_bytes()).unwrap();
 
     zip.start_file("xl/styles.xml", options).unwrap();
     zip.write_all(get_styles_data(style_table).as_bytes()).unwrap();
@@ -371,9 +373,9 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
     sheet_views.add_children(vec![sheet_view]);
     let mut sheet_format_pr = Element::new("sheetFormatPr");
     sheet_format_pr
+        .add_attr("customHeight", "1")
         .add_attr("defaultRowHeight", "15.75")
-        .add_attr("defaultColWidth", "14.43")
-        .add_attr("customHeight", "1");
+        .add_attr("defaultColWidth", "14.43");
 
     let mut cols = Element::new("cols");
     let mut cols_children = vec!();
@@ -411,7 +413,6 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
         },
         None => ()
     }
-    cols.add_children(cols_children);
 
     let mut sheet_data = Element::new("sheetData");
     let mut sheet_data_rows = vec!();
@@ -458,7 +459,13 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
     }
     sheet_data.add_children(sheet_data_rows);
 
-    let mut worksheet_children = vec![sheet_views, cols, sheet_format_pr, sheet_data];
+    let mut worksheet_children = vec![sheet_views];
+    if cols_children.len() > 0{ 
+        cols.add_children(cols_children);
+        worksheet_children.push(cols);
+    }
+    worksheet_children.push(sheet_format_pr);
+    worksheet_children.push(sheet_data);
 
     match merged {
         Some(merged) => {
@@ -492,7 +499,7 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
     worksheet.to_xml()
 }
 
-fn get_shared_strings_data(shared_strings: Vec<String>) -> String {
+fn get_shared_strings_data(shared_strings: Vec<String>, shared_strings_count: i32) -> String {
     let mut sst = Element::new("sst");
     let sst_children: Vec<Element> = shared_strings.iter().map(|s| {
         let mut t = Element::new("t");
@@ -504,7 +511,7 @@ fn get_shared_strings_data(shared_strings: Vec<String>) -> String {
 
     sst
         .add_attr("uniqueCount", shared_strings.len().to_string())
-        .add_attr("count", shared_strings.len().to_string())
+        .add_attr("count", shared_strings_count.to_string())
         .add_attr("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main")
         .add_children(sst_children);
     
@@ -521,6 +528,16 @@ fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
     content_types.add_attr("xmlns", "http://schemas.openxmlformats.org/package/2006/content-types");
 
     let mut overrides = vec!();
+
+    let mut default_xml = Element::new("Default");
+    default_xml
+        .add_attr("ContentType", "application/xml")
+        .add_attr("Extension", "xml");
+    let mut default_rels = Element::new("Default");
+    default_rels
+        .add_attr("ContentType", "application/vnd.openxmlformats-package.relationships+xml")
+        .add_attr("Extension", "rels");
+
     let mut root_rels = Element::new("Override");
     root_rels
         .add_attr("ContentType", "application/vnd.openxmlformats-package.relationships+xml")
@@ -542,7 +559,8 @@ fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
         .add_attr("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
         .add_attr("PartName", "/xl/workbook.xml");
 
-
+    overrides.push(default_xml);
+    overrides.push(default_rels);
     overrides.push(root_rels);
     overrides.push(root_workbook_rels);
     overrides.push(shared_strings_rels);
@@ -550,7 +568,7 @@ fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
         let mut sheet_rel = Element::new("Override");
         sheet_rel
             .add_attr("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")
-            .add_attr("PartName", path);
+            .add_attr("PartName", String::from("/") + path);
         overrides.push(sheet_rel);
     }
     overrides.push(style_rels);
