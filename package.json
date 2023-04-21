@@ -2,7 +2,7 @@
   "name": "json2excel-wasm",
   "description": "WASM based web worker for converting excel data to raw json",
   "keywords": ["excel", "convert", "wasm"],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "collaborators": [
     "Aleksei Kolosov <akolosov@xbsoftware.com>",
@@ -17,7 +17,8 @@
     "pkg/json2excel_wasm.js",
     "pkg/json2excel_wasm_bg.js",
     "pkg/json2excel_wasm.d.ts",
-    "js/worker.js"
+    "js/worker.js",
+    "js/module.js"
   ],
   "module": "js/module.js",
   "scripts": {
