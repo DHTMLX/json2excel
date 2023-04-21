@@ -2,7 +2,9 @@ use wasm_bindgen;
 use wasm_bindgen::prelude::*;
 use std::io::prelude::*;
 
-use serde_derive::{Deserialize};
+// serializing helpers
+use serde::{Deserialize};
+use gloo_utils::format::JsValueSerdeExt;
 
 use zip;
 
@@ -18,6 +20,8 @@ pub mod xml;
 use crate::xml::{Element};
 pub mod style;
 use crate::style::{StyleTable};
+pub mod utils;
+pub mod formulas;
 
 const WIDTH_COEF: f32 = 8.5;
 const HEIGHT_COEF: f32 = 0.75;
@@ -89,12 +93,16 @@ impl InnerCell {
 enum CellValue {
     None,
     Value(String),
+    Formula(String),
     SharedString(u32)
 }
 
 #[wasm_bindgen]
 pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
+    utils::set_panic_hook();
+
     let data: SpreadsheetData = raw_data.into_serde().unwrap();
+    let futures = formulas::get_future_functions();
 
     let mut shared_strings = vec!();
     let mut shared_strings_count = 0;
@@ -127,14 +135,20 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                                     inner_cell.value = CellValue::Value(value.to_owned());
                                                 },
                                                 Err(_) => {
-                                                    shared_strings_count += 1;
-                                                    match shared_strings.iter().position(|s| s == value) {
-                                                        Some(index) => {
-                                                            inner_cell.value = CellValue::SharedString(index as u32);
-                                                        },
-                                                        None => {
-                                                            inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
-                                                            shared_strings.push(value.to_owned());
+                                                    if value.starts_with("=") {
+                                                        // [FIXME] formula can be corrupted
+                                                        inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
+                                                    } else {
+                                                        shared_strings_count += 1;
+                                                        // [FIXME] N^2, slow
+                                                        match shared_strings.iter().position(|s| s == value) {
+                                                            Some(index) => {
+                                                                inner_cell.value = CellValue::SharedString(index as u32);
+                                                            },
+                                                            None => {
+                                                                inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
+                                                                shared_strings.push(value.to_owned());
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -167,8 +181,13 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                                 inner_cell.value = CellValue::Value(value.to_owned());
                                             },
                                             Err(_) => {
-                                                inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
-                                                shared_strings.push(value.to_owned());
+                                                if value.starts_with("=") {
+                                                    // [FIXME] formula can be corrupted
+                                                    inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
+                                                } else {
+                                                    inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
+                                                    shared_strings.push(value.to_owned());
+                                                }
                                             }
                                         }
                                         inner_row.push(inner_cell);
@@ -434,8 +453,15 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
             match &cell.value {
                 CellValue::Value(ref v) => {
                     let mut value_cell = Element::new("v");
-                    value_cell.add_value(v.to_owned());
+                    value_cell.add_value(v);
                     cell_el.add_children(vec![value_cell]);
+                    utils::log!("value {}", v)
+                },
+                CellValue::Formula(ref v) => {
+                    let mut value_cell = Element::new("f");
+                    value_cell.add_value(v);
+                    cell_el.add_children(vec![value_cell]);
+                    utils::log!("formula {}", v)
                 },
                 CellValue::SharedString(ref s) => {
                     cell_el.add_attr("t", "s");
@@ -468,18 +494,20 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
 
     match merged {
         Some(merged) => {
-            let mut merged_cells_element = Element::new("mergeCells");
-            merged_cells_element
-                .add_attr("count", merged.len().to_string())
-                .add_children(merged.iter().map(|MergedCell {from, to}| {
-                    let p1 = cell_offsets_to_index(from.row as usize, from.column as usize);
-                    let p2 = cell_offsets_to_index(to.row as usize, to.column as usize);
-                    let cell_ref = format!("{}:{}", p1, p2);
-                    let mut merged_cell = Element::new("mergeCell");
-                    merged_cell.add_attr("ref", cell_ref);
-                    merged_cell
-                }).collect());
-            worksheet_children.push(merged_cells_element);
+            if merged.len() > 0 {
+                let mut merged_cells_element = Element::new("mergeCells");
+                merged_cells_element
+                    .add_attr("count", merged.len().to_string())
+                    .add_children(merged.iter().map(|MergedCell {from, to}| {
+                        let p1 = cell_offsets_to_index(from.row as usize, from.column as usize);
+                        let p2 = cell_offsets_to_index(to.row as usize, to.column as usize);
+                        let cell_ref = format!("{}:{}", p1, p2);
+                        let mut merged_cell = Element::new("mergeCell");
+                        merged_cell.add_attr("ref", cell_ref);
+                        merged_cell
+                    }).collect());
+                worksheet_children.push(merged_cells_element);
+            }
         },
         None => ()
     }
@@ -519,7 +547,7 @@ fn get_shared_strings_data(shared_strings: Vec<String>, shared_strings_count: i3
 
 fn get_sheet_info(name: Option<String>, index: usize) -> (String, String) {
     let sheet_name = name.unwrap_or(format!("sheet{}", index + 1));
-    (format!("xl/worksheets/{}.xml", &sheet_name), sheet_name)
+    (format!("xl/worksheets/sheet{}.xml", index + 1), sheet_name)
 }
 
 fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
@@ -605,7 +633,7 @@ fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
         sheet_relationship
             .add_attr("Id", format!("rId{}", last_id))
             .add_attr("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet")
-            .add_attr("Target", format!("worksheets/{}.xml", name));
+            .add_attr("Target", format!("worksheets/sheet{}.xml", (index+1)));
         relationships_children.push(sheet_relationship);   
         let mut sheet_element = Element::new("sheet");
         sheet_element

@@ -1,4 +1,6 @@
+/pkg
+/dist
 /target
 /node_modules
 **/*.rs.bk
-index.js
+*.log

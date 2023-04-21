@@ -1,0 +1,56 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JSON 2 Excel</title>
+    <style>
+        .spreadsheet-data {
+            width: 80%;
+            height: 400px;
+        }
+        button {
+            font-size: 14px; padding: 8px; margin:4px;
+        }
+    </style>
+</head>
+<body>
+    <div><textarea class="spreadsheet-data"></textarea></div>
+    <button id="convert-button">download</button>
+
+    <script src="./example/datasets.js"></script>
+    <script type="module">
+        let $ = document.querySelector.bind(document);
+
+        const dataArea = $(".spreadsheet-data");
+        dataArea.value = JSON.stringify(example, undefined, 2);
+
+        import MyWorker from "./js/worker.js?worker";
+
+        let worker;
+        $("#convert-button").addEventListener("click", function(e){
+            if (!worker) {
+                worker = new MyWorker();
+                worker.addEventListener("message", e => {
+                    if (e.data.type === "ready"){
+                        const blob = e.data.blob;
+                        
+                        const a = document.createElement("a");
+                        a.href = URL.createObjectURL(blob);
+                        a.download = "data.xlsx";
+                        document.body.append(a);
+                        a.click();
+                        document.body.remove(a);
+                    }
+                });
+            }
+
+            worker.postMessage({
+                type: "convert",
+                data: dataArea.value
+            });
+        });
+    </script>
+
+</body>
+</html>
