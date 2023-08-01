@@ -149,6 +149,7 @@ interface IDataCell{
 interface IStyle {
     fontSize?: string;
     align?: string;
+    verticalAlign?: string;
 
     background?: string;
     color?: string;
@@ -158,6 +159,11 @@ interface IStyle {
     textDecoration?: string;
 
     format?: string;
+
+    borderTop?: string;
+    borderRight?: string;
+    borderBottom?: string;
+    borderLeft?: string;
 }
 ```
 
