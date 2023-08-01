@@ -203,7 +203,7 @@ impl BorderProps {
         let attr_style = match self.style {
             BorderStyle::Dotted => "dotted",
             BorderStyle::Thick => "thick",
-            BorderStyle::Solid => "thick",
+            BorderStyle::Solid => "medium",
             BorderStyle::Double => "double",
             BorderStyle::Dashed => "hair",
             BorderStyle::Thin => "thin",
