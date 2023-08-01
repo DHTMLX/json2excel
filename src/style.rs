@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::xml::Element;
+
 #[derive(PartialEq)]
 pub struct Font {
     pub size: Option<String>,
@@ -7,18 +9,18 @@ pub struct Font {
     pub bold: bool,
     pub italic: bool,
     pub underline: bool,
-    pub strike: bool
+    pub strike: bool,
 }
 
 #[derive(PartialEq)]
 pub struct Fill {
     pub pattern_type: String,
-    pub color: Option<String>
+    pub color: Option<String>,
 }
 
 #[derive(PartialEq)]
 pub struct Border {
-    pub top: Option<BorderProps>,    
+    pub top: Option<BorderProps>,
     pub right: Option<BorderProps>,
     pub bottom: Option<BorderProps>,
     pub left: Option<BorderProps>,
@@ -32,10 +34,30 @@ pub struct StyleProps {
     pub valign: Option<String>,
 }
 
+#[derive(PartialEq, Debug)]
+pub enum BorderStyle {
+    Solid,
+    Dotted,
+    Thick,
+    Thin,
+    Dashed,
+    Double,
+}
+
+#[derive(PartialEq, Debug)]
+pub enum BorderPosition {
+    Top,
+    Right,
+    Bottom,
+    Left,
+}
+
 #[derive(PartialEq)]
 pub struct BorderProps {
-    // TODO other properties
-    pub color: Option<String>,
+    pub position: BorderPosition,
+    pub size: f32,
+    pub style: BorderStyle,
+    pub color: String,
 }
 
 pub struct StyleTable {
@@ -44,7 +66,7 @@ pub struct StyleTable {
     pub borders: Vec<Border>,
     pub xfs: Vec<Option<XSFProps>>,
     pub custom_formats: HashMap<String, u32>,
-    next_custom_format: u32
+    next_custom_format: u32,
 }
 
 pub struct XSFProps {
@@ -62,17 +84,17 @@ impl StyleTable {
             fonts: vec![Font::new()],
             fills: vec![Fill::new(None, "none"), Fill::new(None, "gray125")],
             borders: vec![Border::new()],
-            xfs: vec!(),
+            xfs: vec![],
             custom_formats: HashMap::new(),
-            next_custom_format: 164
+            next_custom_format: 164,
         };
         match css {
             Some(map) => {
                 for style in map {
                     table.add(style);
                 }
-            },
-            None => table.xfs.push(Some(XSFProps::new()))
+            }
+            None => table.xfs.push(Some(XSFProps::new())),
         }
 
         table
@@ -80,41 +102,40 @@ impl StyleTable {
     pub fn add(&mut self, style: HashMap<String, String>) {
         let mut xsf_props: XSFProps = XSFProps::new();
         let st = style_to_props(&style);
-        
-        xsf_props.font_id = st.font.map(|font| {
-             match self.fonts.iter().position(|f| f == &font) {
+
+        xsf_props.font_id = st
+            .font
+            .map(|font| match self.fonts.iter().position(|f| f == &font) {
                 Some(v) => v,
                 None => {
                     self.fonts.push(font);
                     self.fonts.len() - 1
                 }
-            }
-        });
-        xsf_props.fill_id = st.fill.map(|fill| {
-            match self.fills.iter().position(|f| f == &fill) {
+            });
+        xsf_props.fill_id = st
+            .fill
+            .map(|fill| match self.fills.iter().position(|f| f == &fill) {
                 Some(v) => v,
                 None => {
                     self.fills.push(fill);
                     self.fills.len() - 1
                 }
-            }
-        });
-        xsf_props.border_id = st.border.map(|border| {
-            match self.borders.iter().position(|b| b == &border) {
-                Some(v) => v,
-                None => {
-                    self.borders.push(border);
-                    self.borders.len() - 1
-                }
-            }
-        });
+            });
+        xsf_props.border_id =
+            st.border.map(
+                |border| match self.borders.iter().position(|b| b == &border) {
+                    Some(v) => v,
+                    None => {
+                        self.borders.push(border);
+                        self.borders.len() - 1
+                    }
+                },
+            );
         xsf_props.align = st.align;
         xsf_props.valign = st.valign;
         xsf_props.format_id = style.get("format").map(|format_name| {
             let i = match get_format_code(format_name) {
-                Some(format) => {
-                    format
-                },
+                Some(format) => format,
                 None => {
                     if self.custom_formats.contains_key(format_name) {
                         self.custom_formats.get(format_name).unwrap().to_owned()
@@ -137,7 +158,7 @@ impl Fill {
     pub fn new(color: Option<String>, pattern_type: &str) -> Fill {
         Fill {
             pattern_type: pattern_type.to_owned(),
-            color: color
+            color: color,
         }
     }
 }
@@ -150,14 +171,14 @@ impl Font {
             bold: false,
             italic: false,
             underline: false,
-            strike: false
+            strike: false,
         }
     }
 }
 
 impl Border {
     pub fn new() -> Border {
-        Border{
+        Border {
             top: None,
             right: None,
             bottom: None,
@@ -166,9 +187,41 @@ impl Border {
     }
 }
 
-impl StyleProps  {
+impl BorderProps {
+    pub fn to_xml_el(&self) -> Element {
+        let el_name = match self.position {
+            BorderPosition::Top => "top",
+            BorderPosition::Right => "right",
+            BorderPosition::Bottom => "bottom",
+            BorderPosition::Left => "left",
+        };
+
+        let mut el = Element::new(el_name);
+
+        let attr_style = match self.style {
+            BorderStyle::Dotted => "dotted",
+            BorderStyle::Thick => "thick",
+            BorderStyle::Solid => "thick",
+            BorderStyle::Double => "double",
+            BorderStyle::Dashed => "hair",
+            BorderStyle::Thin => "thin",
+        };
+
+        el.add_attr("style", attr_style);
+
+        if !self.color.is_empty() {
+            let mut el_color = Element::new("color");
+            el_color.add_attr("rgb", self.color.to_owned());
+            el.add_children(vec![el_color]);
+        }
+
+        el
+    }
+}
+
+impl StyleProps {
     pub fn new() -> StyleProps {
-        StyleProps{
+        StyleProps {
             align: None,
             fill: None,
             font: None,
@@ -195,13 +248,12 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
     let mut font: Font = Font::new();
     let mut border: Border = Border::new();
     let mut st = StyleProps::new();
-    
 
     for (key, value) in styles {
         match key.as_ref() {
             "background" => match color_to_argb(value) {
                 Some(v) => st.fill = Some(Fill::new(Some(v), "solid")),
-                None => ()
+                None => (),
             },
             "color" => font.color = color_to_argb(value),
             "fontWeight" => font.bold = value == "bold",
@@ -209,31 +261,21 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
             "textDecoration" => {
                 font.underline = value.contains("underline");
                 font.strike = value.contains("line-through");
-            },
+            }
             "fontSize" => font.size = px_to_pt(&value),
             "align" => st.align = Some(value.to_owned()),
-            "verticalAlign" => {
-                st.valign = Some(value.to_owned())
-            },
-            "borderTop" => {
-                border.top = str_to_border(&value)
-            },
-            "borderRight" => {
-                border.right = str_to_border(&value)
-            },
-            "borderBottom" => {
-                border.bottom = str_to_border(&value)
-            },
-            "borderLeft" => {
-                border.top = str_to_border(&value)
-            },
-            _ => ()
+            "verticalAlign" => st.valign = Some(value.to_owned()),
+            "borderTop" => border.top = str_to_border(&value, BorderPosition::Top),
+            "borderRight" => border.right = str_to_border(&value, BorderPosition::Right),
+            "borderBottom" => border.bottom = str_to_border(&value, BorderPosition::Bottom),
+            "borderLeft" => border.left = str_to_border(&value, BorderPosition::Left),
+            _ => (),
         }
     }
 
     st.font = Some(font);
     st.border = Some(border);
-    
+
     st
 }
 
@@ -251,9 +293,12 @@ fn color_to_argb(color: &str) -> Option<String> {
         argb_color.push_str("FF");
         argb_color.push_str(&color[1..]);
         Some(argb_color)
-    } else if len > 11 && &color[0..5] == "rgba(" && &color[len-1..] == ")" {
-        let colors_part = &color[5..len-1];
-        let colors = colors_part.split(",").map(|s|s.trim()).collect::<Vec<&str>>();
+    } else if len > 11 && &color[0..5] == "rgba(" && &color[len - 1..] == ")" {
+        let colors_part = &color[5..len - 1];
+        let colors = colors_part
+            .split(",")
+            .map(|s| s.trim())
+            .collect::<Vec<&str>>();
         if colors.len() < 4 {
             return None;
         }
@@ -269,9 +314,12 @@ fn color_to_argb(color: &str) -> Option<String> {
         argb_color.push_str(&g.unwrap());
         argb_color.push_str(&b.unwrap());
         Some(argb_color)
-    } else if len > 10 && &color[0..4] == "rgb(" && &color[len-1..] == ")" {
-        let colors_part = &color[4..len-1];
-        let colors = colors_part.split(",").map(|s|s.trim()).collect::<Vec<&str>>();
+    } else if len > 10 && &color[0..4] == "rgb(" && &color[len - 1..] == ")" {
+        let colors_part = &color[4..len - 1];
+        let colors = colors_part
+            .split(",")
+            .map(|s| s.trim())
+            .collect::<Vec<&str>>();
         if colors.len() < 3 {
             return None;
         }
@@ -298,10 +346,10 @@ fn str_to_hex(s: &str) -> Option<String> {
             match res.len() {
                 1 => Some(String::from("0") + &res),
                 2 => Some(res),
-                _ => None
+                _ => None,
             }
-        },
-        Err(_) => None
+        }
+        Err(_) => None,
     }
 }
 
@@ -312,21 +360,21 @@ fn str_alpha_to_hex(s: &str) -> Option<String> {
             match res.len() {
                 1 => Some(String::from("0") + &res),
                 2 => Some(res),
-                _ => None
+                _ => None,
             }
-        },
-        Err(_) => None
+        }
+        Err(_) => None,
     }
 }
 
 fn px_to_pt(size: &str) -> Option<String> {
     let len = size.len();
-    if &size[len-2..].to_owned() != "px" {
+    if &size[len - 2..].to_owned() != "px" {
         None
     } else {
-        match size[0..len-2].to_owned().parse::<f32>() {
+        match size[0..len - 2].to_owned().parse::<f32>() {
             Ok(v) => Some((v * 0.75).to_string()),
-            Err(_) => None
+            Err(_) => None,
         }
     }
 }
@@ -360,11 +408,11 @@ fn get_format_code(format: &str) -> Option<u32> {
         "mmss.0" => Some(47),
         "##0.0E+0" => Some(48),
         "@" => Some(49),
-        _ => None
+        _ => None,
     }
 }
 
-fn str_to_border(v: &str) -> Option<BorderProps> {
+fn str_to_border(v: &str, pos: BorderPosition) -> Option<BorderProps> {
     let parts = v.split(" ");
     let vals: Vec<&str> = parts.collect();
 
@@ -372,8 +420,38 @@ fn str_to_border(v: &str) -> Option<BorderProps> {
         return None;
     }
 
-    Some(BorderProps{
-        color: color_to_argb(vals[2]),
+    let size = match vals[0].to_string().trim_end_matches("px").parse::<f32>() {
+        Ok(s) => s,
+        Err(_) => return None,
+    };
+
+    let style = match vals[1] {
+        "thin" => BorderStyle::Thin,
+        "dotted" => BorderStyle::Dotted,
+        "double" => BorderStyle::Double,
+        "dashed" => BorderStyle::Dashed,
+        "solid" => {
+            let mut st = BorderStyle::Solid;
+            if size == 0.5 {
+                st = BorderStyle::Thin
+            } else if size == 2.0 {
+                st = BorderStyle::Thick
+            }
+            st
+        }
+        _ => return None,
+    };
+
+    let color: String = match color_to_argb(vals[2]) {
+        Some(s) => s,
+        None => return None,
+    };
+
+    Some(BorderProps {
+        position: pos,
+        size: size,
+        style: style,
+        color: color,
     })
 }
 
@@ -389,7 +467,10 @@ fn style_to_props_test() {
     styles.insert(String::from("align"), String::from("left"));
     styles.insert(String::from("verticalAlign"), String::from("bottom"));
     styles.insert(String::from("borderTop"), String::from("1px solid #9AFF02"));
-    styles.insert(String::from("borderRight"), String::from("1px solid #000000"));
+    styles.insert(
+        String::from("borderRight"),
+        String::from("1px solid #000000"),
+    );
 
     let st = style_to_props(&styles);
 
@@ -402,10 +483,10 @@ fn style_to_props_test() {
     assert_eq!(st.fill.unwrap().color, Some(String::from("FFFF0000")));
     assert_eq!(st.align, Some(String::from("left")));
     assert_eq!(st.valign, Some(String::from("bottom")));
-    
+
     let border = st.border.unwrap();
-    assert_eq!(border.top.unwrap().color, Some(String::from("FF9AFF02")));
-    assert_eq!(border.right.unwrap().color, Some(String::from("FF000000")));
+    assert_eq!(border.top.unwrap().color, String::from("FF9AFF02"));
+    assert_eq!(border.right.unwrap().color, String::from("FF000000"));
 }
 
 #[test]
@@ -416,8 +497,50 @@ fn str_to_hex_test() {
 
 #[test]
 fn color_to_argb_test() {
-    assert_eq!(color_to_argb("rgba(255, 255, 255, 1)"), Some(String::from("FFFFFFFF")));
-    assert_eq!(color_to_argb("rgb(254,254,254)"), Some(String::from("FFFEFEFE")));
+    assert_eq!(
+        color_to_argb("rgba(255, 255, 255, 1)"),
+        Some(String::from("FFFFFFFF"))
+    );
+    assert_eq!(
+        color_to_argb("rgb(254,254,254)"),
+        Some(String::from("FFFEFEFE"))
+    );
     assert_eq!(color_to_argb("#FF6347"), Some(String::from("FFFF6347")));
     assert_eq!(color_to_argb("#A4B"), Some(String::from("FFAA44BB")));
+}
+
+#[test]
+fn str_to_border_test() {
+    let mut maybe_border = str_to_border("1px solid #9900CC", BorderPosition::Top);
+    let mut b = maybe_border.unwrap();
+    assert_eq!(b.color, "FF9900CC");
+    assert_eq!(b.position, BorderPosition::Top);
+    assert_eq!(b.size, 1.0);
+    assert_eq!(b.style, BorderStyle::Solid);
+
+    maybe_border = str_to_border("0.5px solid #B3FFB3", BorderPosition::Right);
+    b = maybe_border.unwrap();
+    assert_eq!(b.color, "FFB3FFB3");
+    assert_eq!(b.position, BorderPosition::Right);
+    assert_eq!(b.size, 0.5);
+    assert_eq!(b.style, BorderStyle::Thin);
+
+    maybe_border = str_to_border("2px solid #BCD", BorderPosition::Bottom);
+    b = maybe_border.unwrap();
+    assert_eq!(b.color, "FFBBCCDD");
+    assert_eq!(b.position, BorderPosition::Bottom);
+    assert_eq!(b.size, 2.0);
+    assert_eq!(b.style, BorderStyle::Thick);
+
+    maybe_border = str_to_border("2px dashed #BCD", BorderPosition::Left);
+    b = maybe_border.unwrap();
+    assert_eq!(b.style, BorderStyle::Dashed);
+
+    maybe_border = str_to_border("2px dotted #BCD", BorderPosition::Left);
+    b = maybe_border.unwrap();
+    assert_eq!(b.style, BorderStyle::Dotted);
+
+    maybe_border = str_to_border("2px double #BCD", BorderPosition::Left);
+    b = maybe_border.unwrap();
+    assert_eq!(b.style, BorderStyle::Double);
 }

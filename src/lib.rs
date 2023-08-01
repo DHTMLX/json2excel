@@ -254,7 +254,7 @@ fn get_styles_data(style_table: StyleTable) -> String {
         match font.size {
             Some(ref size) => {
                 let mut sz = Element::new("sz");
-                sz.add_attr("val", size);
+                sz.add_attr("val", size.to_string());
                 font_children.push(sz);
             },
             None => ()
@@ -296,48 +296,17 @@ fn get_styles_data(style_table: StyleTable) -> String {
         let mut border_element = Element::new("border");
         let mut children: Vec<Element> = vec![];
 
-        if let Some(top) = &border.top {
-            let mut el = Element::new("top");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &top.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.top {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(right) = &border.right {
-            let mut el = Element::new("right");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &right.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.right {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(bottom) = &border.bottom {
-            let mut el = Element::new("bottom");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &bottom.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.bottom {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(left) = &border.left {
-            let mut el = Element::new("left");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &left.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.left {
+            children.push(b.to_xml_el())
         }
 
         border_element.add_children(children);
