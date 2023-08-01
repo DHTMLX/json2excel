@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::*;
 use std::io::prelude::*;
 
 // serializing helpers
-use serde::{Deserialize};
+use serde::Deserialize;
 use gloo_utils::format::JsValueSerdeExt;
 
 use zip;
@@ -17,9 +17,9 @@ use std::collections::HashMap;
 type Dict = HashMap<String, String>;
 
 pub mod xml;
-use crate::xml::{Element};
+use crate::xml::Element;
 pub mod style;
-use crate::style::{StyleTable};
+use crate::style::StyleTable;
 pub mod utils;
 pub mod formulas;
 
@@ -292,10 +292,61 @@ fn get_styles_data(style_table: StyleTable) -> String {
         .add_children(fonts_children);
 
     let mut borders_element = Element::new("borders");
-    
-    borders_element
-        .add_attr("count", "1")
-        .add_children(vec![Element::new("border")]);
+    let border_children: Vec<Element> = style_table.borders.iter().map(|border| {
+        let mut border_element = Element::new("border");
+        let mut children: Vec<Element> = vec![];
+
+        if let Some(top) = &border.top {
+            let mut el = Element::new("top");
+            el.add_attr("style", "thin");
+
+            if let Some(color) = &top.color {
+                let mut color_element = Element::new("color");
+                color_element.add_attr("rgb", color); 
+                children.push(el);
+            }
+        }
+
+        if let Some(right) = &border.right {
+            let mut el = Element::new("right");
+            el.add_attr("style", "thin");
+
+            if let Some(color) = &right.color {
+                let mut color_element = Element::new("color");
+                color_element.add_attr("rgb", color); 
+                children.push(el);
+            }
+        }
+
+        if let Some(bottom) = &border.bottom {
+            let mut el = Element::new("bottom");
+            el.add_attr("style", "thin");
+
+            if let Some(color) = &bottom.color {
+                let mut color_element = Element::new("color");
+                color_element.add_attr("rgb", color); 
+                children.push(el);
+            }
+        }
+
+        if let Some(left) = &border.left {
+            let mut el = Element::new("left");
+            el.add_attr("style", "thin");
+
+            if let Some(color) = &left.color {
+                let mut color_element = Element::new("color");
+                color_element.add_attr("rgb", color); 
+                children.push(el);
+            }
+        }
+
+        border_element.add_children(children);
+        border_element
+    }).collect();
+    borders_element.add_attr("count", border_children.len().to_string());
+    borders_element.add_children(vec![Element::new("border")]);
+    borders_element.add_children(border_children);
+
 
     let mut fills_element = Element::new("fills");
     let fills_children: Vec<Element> = style_table.fills.iter().map(|ref fill| {
@@ -318,37 +369,39 @@ fn get_styles_data(style_table: StyleTable) -> String {
         .add_children(fills_children);
 
     let mut cell_xfs = Element::new("cellXfs");
-    let xfs_children: Vec<Element> = style_table.xfs.iter().map(|(maybe_font_id, maybe_fill_id, maybe_format_id, align)| {
+    let xfs_children: Vec<Element> = style_table.xfs.iter().map(|props| {
         let mut xf = Element::new("xf");
 
-        maybe_font_id.map(|font| {
-            xf
-                .add_attr("applyFont", "1")
-                .add_attr("fontId", font.to_string());
-        });
-        maybe_fill_id.map(|fill| {
-            xf
-                .add_attr("applyFill", "1")
-                .add_attr("fillId", fill.to_string());
-        });
-        maybe_format_id.map(|format| {
-            xf
-                .add_attr("applyNumberFormat", "1")
-                .add_attr("numFmtId", format.to_string());
+        props.as_ref().map(|p| {
+            p.font_id.map(|id|{
+                xf
+                    .add_attr("applyFont", "1")
+                    .add_attr("fontId", id.to_string());
+            });
+            p.fill_id.map(|id| {
+                xf
+                    .add_attr("applyFill", "1")
+                    .add_attr("fillId", id.to_string());
+            });
+            p.format_id.map(|id| {
+                xf
+                    .add_attr("applyNumberFormat", "1")
+                    .add_attr("numFmtId", id.to_string());
+            });            
+            p.border_id.map(|id| {
+                xf
+                    .add_attr("applyBorder", "1")
+                    .add_attr("borderId", id.to_string());
+            });
+
+            if p.align.is_some() || p.valign.is_some() {
+                let mut alignment = Element::new("alignment");
+                p.align.as_ref().map(|v| alignment.add_attr("horizontal", v));
+                p.valign.as_ref().map(|v| alignment.add_attr("vertical", v));
+                xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
+            }
         });
 
-        xf.add_attr("borderId", "0");
-        match align {
-            Some(ref align) => {
-                let mut alignment = Element::new("alignment");
-                alignment.add_attr("horizontal", align.to_string());
-                xf
-                    .add_attr("applyAlignment", "1")
-                    .add_children(vec![alignment]);
-            },
-            None => ()
-        }
-        
         xf
     }).collect();
 
