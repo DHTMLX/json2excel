@@ -251,6 +251,14 @@ fn get_styles_data(style_table: StyleTable) -> String {
     let fonts_children: Vec<Element> = style_table.fonts.iter().map(|ref font| {
         let mut font_element = Element::new("font");
         let mut font_children = vec!();
+        match font.family {
+            Some(ref font) => {
+                let mut name_el = Element::new("name");
+                name_el.add_attr("val", font);
+                font_children.push(name_el);
+            }
+            None => (),
+        }
         match font.size {
             Some(ref size) => {
                 let mut sz = Element::new("sz");

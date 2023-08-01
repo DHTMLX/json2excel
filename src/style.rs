@@ -4,6 +4,7 @@ use crate::xml::Element;
 
 #[derive(PartialEq)]
 pub struct Font {
+    pub family: Option<String>,
     pub size: Option<String>,
     pub color: Option<String>,
     pub bold: bool,
@@ -166,6 +167,7 @@ impl Fill {
 impl Font {
     pub fn new() -> Font {
         Font {
+            family: None,
             size: None,
             color: None,
             bold: false,
@@ -258,6 +260,7 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
             "color" => font.color = color_to_argb(value),
             "fontWeight" => font.bold = value == "bold",
             "fontStyle" => font.italic = value == "italic",
+            "fontFamily" => font.family = Some(value.to_string()),
             "textDecoration" => {
                 font.underline = value.contains("underline");
                 font.strike = value.contains("line-through");
@@ -471,6 +474,7 @@ fn style_to_props_test() {
         String::from("borderRight"),
         String::from("1px solid #000000"),
     );
+    styles.insert(String::from("fontFamily"), String::from("Calibri"));
 
     let st = style_to_props(&styles);
 
@@ -478,6 +482,7 @@ fn style_to_props_test() {
     assert_eq!(font.size, Some(String::from("18")));
     assert_eq!(font.color, Some(String::from("FFFFFF00")));
     assert_eq!(font.bold, true);
+    assert_eq!(font.family, Some(String::from("Calibri")));
     assert_eq!(font.italic, true);
     assert_eq!(font.underline, true);
     assert_eq!(st.fill.unwrap().color, Some(String::from("FFFF0000")));
