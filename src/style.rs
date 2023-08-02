@@ -31,8 +31,8 @@ pub struct StyleProps {
     pub font: Option<Font>,
     pub fill: Option<Fill>,
     pub border: Option<Border>,
-    pub align: Option<String>,
-    pub valign: Option<String>,
+    pub align_h: Option<String>,
+    pub align_v: Option<String>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -75,8 +75,8 @@ pub struct XSFProps {
     pub border_id: Option<usize>,
     pub fill_id: Option<usize>,
     pub format_id: Option<usize>,
-    pub align: Option<String>,
-    pub valign: Option<String>,
+    pub align_h: Option<String>,
+    pub align_v: Option<String>,
 }
 
 impl StyleTable {
@@ -132,8 +132,8 @@ impl StyleTable {
                     }
                 },
             );
-        xsf_props.align = st.align;
-        xsf_props.valign = st.valign;
+        xsf_props.align_h = st.align_h;
+        xsf_props.align_v = st.align_v;
         xsf_props.format_id = style.get("format").map(|format_name| {
             let i = match get_format_code(format_name) {
                 Some(format) => format,
@@ -224,11 +224,11 @@ impl BorderProps {
 impl StyleProps {
     pub fn new() -> StyleProps {
         StyleProps {
-            align: None,
+            align_h: None,
             fill: None,
             font: None,
             border: None,
-            valign: None,
+            align_v: None,
         }
     }
 }
@@ -240,8 +240,8 @@ impl XSFProps {
             fill_id: None,
             border_id: None,
             format_id: None,
-            align: None,
-            valign: None,
+            align_h: None,
+            align_v: None,
         }
     }
 }
@@ -266,8 +266,8 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
                 font.strike = value.contains("line-through");
             }
             "fontSize" => font.size = px_to_pt(&value),
-            "align" => st.align = Some(value.to_owned()),
-            "verticalAlign" => st.valign = Some(value.to_owned()),
+            "textAlign" => st.align_h = Some(value.to_owned()),
+            "verticalAlign" => st.align_v = Some(value.to_owned()),
             "borderTop" => border.top = str_to_border(&value, BorderPosition::Top),
             "borderRight" => border.right = str_to_border(&value, BorderPosition::Right),
             "borderBottom" => border.bottom = str_to_border(&value, BorderPosition::Bottom),
@@ -466,15 +466,15 @@ fn style_to_props_test() {
     styles.insert(String::from("fontWeight"), String::from("bold"));
     styles.insert(String::from("fontStyle"), String::from("italic"));
     styles.insert(String::from("fontSize"), String::from("24px"));
+    styles.insert(String::from("fontFamily"), String::from("Calibri"));
     styles.insert(String::from("textDecoration"), String::from("underline"));
-    styles.insert(String::from("align"), String::from("left"));
+    styles.insert(String::from("textAlign"), String::from("left"));
     styles.insert(String::from("verticalAlign"), String::from("bottom"));
     styles.insert(String::from("borderTop"), String::from("1px solid #9AFF02"));
     styles.insert(
         String::from("borderRight"),
         String::from("1px solid #000000"),
     );
-    styles.insert(String::from("fontFamily"), String::from("Calibri"));
 
     let st = style_to_props(&styles);
 
@@ -486,8 +486,8 @@ fn style_to_props_test() {
     assert_eq!(font.italic, true);
     assert_eq!(font.underline, true);
     assert_eq!(st.fill.unwrap().color, Some(String::from("FFFF0000")));
-    assert_eq!(st.align, Some(String::from("left")));
-    assert_eq!(st.valign, Some(String::from("bottom")));
+    assert_eq!(st.align_h, Some(String::from("left")));
+    assert_eq!(st.align_v, Some(String::from("bottom")));
 
     let border = st.border.unwrap();
     assert_eq!(border.top.unwrap().color, String::from("FF9AFF02"));

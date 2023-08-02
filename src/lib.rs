@@ -371,10 +371,10 @@ fn get_styles_data(style_table: StyleTable) -> String {
                     .add_attr("borderId", id.to_string());
             });
 
-            if p.align.is_some() || p.valign.is_some() {
+            if p.align_h.is_some() || p.align_v.is_some() {
                 let mut alignment = Element::new("alignment");
-                p.align.as_ref().map(|v| alignment.add_attr("horizontal", v));
-                p.valign.as_ref().map(|v| alignment.add_attr("vertical", v));
+                p.align_h.as_ref().map(|v| alignment.add_attr("horizontal", v));
+                p.align_v.as_ref().map(|v| alignment.add_attr("vertical", v));
                 xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
             }
         });
