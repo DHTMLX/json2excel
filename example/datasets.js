@@ -177,11 +177,11 @@ var example = {
     "fontFamily": "Calibri",
     "fontSize": "16px",
     "color": "rgba(0,0,0,1)",
-    "borderRight": "2px solid #34e343",
-    "borderLeft": "2px solid #34e343",
+    "borderRight": "1px solid #34e343",
+    "borderLeft": "1px solid #34e343",
     "format": "General",
-    "borderTop": "2px solid #34e343",
-    "borderBottom": "2px solid #34e343"
+    "borderTop": "1px solid #34e343",
+    "borderBottom": "1px solid #34e343"
   },
   {
     "fontSize": "16px",
@@ -264,13 +264,13 @@ var example = {
   {
     "fontFamily": "PT Sans",
     "fontSize": "15px",
-    "borderRight": "1px solid #000",
-    "borderBottom": "1px solid #000",
+    "borderRight": "2px solid #000",
+    "borderBottom": "2px solid #000",
     "format": "General",
     "color": "rgba(0,0,0,1)",
     "verticalAlign": "top",
-    "borderLeft": "1px solid #000",
-    "borderTop": "1px solid #000",
+    "borderLeft": "2px solid #000",
+    "borderTop": "2px solid #000",
     "textAlign": "right"
   },
   {
