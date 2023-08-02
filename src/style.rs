@@ -37,7 +37,7 @@ pub struct StyleProps {
 
 #[derive(PartialEq, Debug)]
 pub enum BorderStyle {
-    Solid,
+    Medium,
     Dotted,
     Thick,
     Thin,
@@ -203,9 +203,9 @@ impl BorderProps {
         let attr_style = match self.style {
             BorderStyle::Dotted => "dotted",
             BorderStyle::Thick => "thick",
-            BorderStyle::Solid => "medium",
             BorderStyle::Double => "double",
             BorderStyle::Dashed => "hair",
+            BorderStyle::Medium => "medium",
             BorderStyle::Thin => "thin",
         };
 
@@ -434,12 +434,16 @@ fn str_to_border(v: &str, pos: BorderPosition) -> Option<BorderProps> {
         "double" => BorderStyle::Double,
         "dashed" => BorderStyle::Dashed,
         "solid" => {
-            let mut st = BorderStyle::Solid;
+            let mut st = BorderStyle::Thin;
+            
             if size == 0.5 {
                 st = BorderStyle::Thin
+            } else if size == 1.0 {
+                st = BorderStyle::Medium
             } else if size == 2.0 {
                 st = BorderStyle::Thick
             }
+
             st
         }
         _ => return None,
@@ -521,7 +525,7 @@ fn str_to_border_test() {
     assert_eq!(b.color, "FF9900CC");
     assert_eq!(b.position, BorderPosition::Top);
     assert_eq!(b.size, 1.0);
-    assert_eq!(b.style, BorderStyle::Solid);
+    assert_eq!(b.style, BorderStyle::Medium);
 
     maybe_border = str_to_border("0.5px solid #B3FFB3", BorderPosition::Right);
     b = maybe_border.unwrap();
