@@ -22,6 +22,7 @@
   ],
   "module": "js/module.js",
   "scripts": {
+    "rdev": "cargo build && wasm-pack build && yarn dev",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

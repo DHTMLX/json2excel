@@ -23,7 +23,7 @@
     let $ = document.querySelector.bind(document);
 
     const dataArea = $(".spreadsheet-data");
-    dataArea.value = JSON.stringify(example2, undefined, 2);
+    dataArea.value = JSON.stringify(example, undefined, 2);
     
     $("#convert-button").addEventListener("click", function(e){
         import("./js/module").then(({ convert }) => {

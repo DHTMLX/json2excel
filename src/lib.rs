@@ -251,10 +251,18 @@ fn get_styles_data(style_table: StyleTable) -> String {
     let fonts_children: Vec<Element> = style_table.fonts.iter().map(|ref font| {
         let mut font_element = Element::new("font");
         let mut font_children = vec!();
+        match font.family {
+            Some(ref font) => {
+                let mut name_el = Element::new("name");
+                name_el.add_attr("val", font);
+                font_children.push(name_el);
+            }
+            None => (),
+        }
         match font.size {
             Some(ref size) => {
                 let mut sz = Element::new("sz");
-                sz.add_attr("val", size);
+                sz.add_attr("val", size.to_string());
                 font_children.push(sz);
             },
             None => ()
@@ -296,48 +304,17 @@ fn get_styles_data(style_table: StyleTable) -> String {
         let mut border_element = Element::new("border");
         let mut children: Vec<Element> = vec![];
 
-        if let Some(top) = &border.top {
-            let mut el = Element::new("top");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &top.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.top {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(right) = &border.right {
-            let mut el = Element::new("right");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &right.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.right {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(bottom) = &border.bottom {
-            let mut el = Element::new("bottom");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &bottom.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.bottom {
+            children.push(b.to_xml_el())
         }
-
-        if let Some(left) = &border.left {
-            let mut el = Element::new("left");
-            el.add_attr("style", "thin");
-
-            if let Some(color) = &left.color {
-                let mut color_element = Element::new("color");
-                color_element.add_attr("rgb", color); 
-                children.push(el);
-            }
+        if let Some(b) = &border.left {
+            children.push(b.to_xml_el())
         }
 
         border_element.add_children(children);
@@ -394,10 +371,10 @@ fn get_styles_data(style_table: StyleTable) -> String {
                     .add_attr("borderId", id.to_string());
             });
 
-            if p.align.is_some() || p.valign.is_some() {
+            if p.align_h.is_some() || p.align_v.is_some() {
                 let mut alignment = Element::new("alignment");
-                p.align.as_ref().map(|v| alignment.add_attr("horizontal", v));
-                p.valign.as_ref().map(|v| alignment.add_attr("vertical", v));
+                p.align_h.as_ref().map(|v| alignment.add_attr("horizontal", v));
+                p.align_v.as_ref().map(|v| alignment.add_attr("vertical", v));
                 xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
             }
         });
