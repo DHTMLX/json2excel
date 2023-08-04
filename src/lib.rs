@@ -251,7 +251,7 @@ fn get_styles_data(style_table: StyleTable) -> String {
     let fonts_children: Vec<Element> = style_table.fonts.iter().map(|ref font| {
         let mut font_element = Element::new("font");
         let mut font_children = vec!();
-        match font.family {
+        match font.name {
             Some(ref font) => {
                 let mut name_el = Element::new("name");
                 name_el.add_attr("val", font);
@@ -346,38 +346,35 @@ fn get_styles_data(style_table: StyleTable) -> String {
         .add_children(fills_children);
 
     let mut cell_xfs = Element::new("cellXfs");
-    let xfs_children: Vec<Element> = style_table.xfs.iter().map(|props| {
+    let xfs_children: Vec<Element> = style_table.xfs.iter().map(|p| {
         let mut xf = Element::new("xf");
 
-        props.as_ref().map(|p| {
-            p.font_id.map(|id|{
-                xf
-                    .add_attr("applyFont", "1")
-                    .add_attr("fontId", id.to_string());
-            });
-            p.fill_id.map(|id| {
-                xf
-                    .add_attr("applyFill", "1")
-                    .add_attr("fillId", id.to_string());
-            });
-            p.format_id.map(|id| {
-                xf
-                    .add_attr("applyNumberFormat", "1")
-                    .add_attr("numFmtId", id.to_string());
-            });            
-            p.border_id.map(|id| {
-                xf
-                    .add_attr("applyBorder", "1")
-                    .add_attr("borderId", id.to_string());
-            });
-
-            if p.align_h.is_some() || p.align_v.is_some() {
-                let mut alignment = Element::new("alignment");
-                p.align_h.as_ref().map(|v| alignment.add_attr("horizontal", v));
-                p.align_v.as_ref().map(|v| alignment.add_attr("vertical", v));
-                xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
-            }
+        p.font_id.map(|id|{
+            xf
+                .add_attr("applyFont", "1")
+                .add_attr("fontId", id.to_string());
         });
+        p.fill_id.map(|id| {
+            xf
+                .add_attr("applyFill", "1")
+                .add_attr("fillId", id.to_string());
+        });
+        p.format_id.map(|id| {
+            xf
+                .add_attr("applyNumberFormat", "1")
+                .add_attr("numFmtId", id.to_string());
+        });            
+        p.border_id.map(|id| {
+            xf
+                .add_attr("applyBorder", "1")
+                .add_attr("borderId", id.to_string());
+        });
+        if p.align_h.is_some() || p.align_v.is_some() {
+            let mut alignment = Element::new("alignment");
+            p.align_h.as_ref().map(|v| alignment.add_attr("horizontal", v));
+            p.align_v.as_ref().map(|v| alignment.add_attr("vertical", v));
+            xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
+        }
 
         xf
     }).collect();
@@ -503,7 +500,8 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
             }
             match &cell.style {
                 Some(ref v) => {
-                    cell_el.add_attr("s", v.to_string());
+                    // style index should be incremented as zero style was prepended
+                    cell_el.add_attr("s", (v+1).to_string());
                 },
                 None => ()
             }

@@ -4,7 +4,7 @@ use crate::xml::Element;
 
 #[derive(PartialEq)]
 pub struct Font {
-    pub family: Option<String>,
+    pub name: Option<String>,
     pub size: Option<String>,
     pub color: Option<String>,
     pub bold: bool,
@@ -65,12 +65,12 @@ pub struct StyleTable {
     pub fonts: Vec<Font>,
     pub fills: Vec<Fill>,
     pub borders: Vec<Border>,
-    pub xfs: Vec<Option<XSFProps>>,
+    pub xfs: Vec<XFSProps>,
     pub custom_formats: HashMap<String, u32>,
     next_custom_format: u32,
 }
 
-pub struct XSFProps {
+pub struct XFSProps {
     pub font_id: Option<usize>,
     pub border_id: Option<usize>,
     pub fill_id: Option<usize>,
@@ -85,23 +85,22 @@ impl StyleTable {
             fonts: vec![Font::new()],
             fills: vec![Fill::new(None, "none"), Fill::new(None, "gray125")],
             borders: vec![Border::new()],
-            xfs: vec![],
+            xfs: vec![XFSProps::new()],
             custom_formats: HashMap::new(),
             next_custom_format: 164,
         };
-        match css {
-            Some(map) => {
-                for style in map {
-                    table.add(style);
-                }
+        table.custom_formats.insert(String::from("General"), 164);
+
+        css.map(|map| {
+            for style in map {
+                table.add(style);
             }
-            None => table.xfs.push(Some(XSFProps::new())),
-        }
+        });
 
         table
     }
     pub fn add(&mut self, style: HashMap<String, String>) {
-        let mut xsf_props: XSFProps = XSFProps::new();
+        let mut xsf_props: XFSProps = XFSProps::new();
         let st = style_to_props(&style);
 
         xsf_props.font_id = st
@@ -151,7 +150,7 @@ impl StyleTable {
             i as usize
         });
 
-        self.xfs.push(Some(xsf_props));
+        self.xfs.push(xsf_props);
     }
 }
 
@@ -167,7 +166,7 @@ impl Fill {
 impl Font {
     pub fn new() -> Font {
         Font {
-            family: None,
+            name: None,
             size: None,
             color: None,
             bold: false,
@@ -233,9 +232,9 @@ impl StyleProps {
     }
 }
 
-impl XSFProps {
-    pub fn new() -> XSFProps {
-        XSFProps {
+impl XFSProps {
+    pub fn new() -> XFSProps {
+        XFSProps {
             font_id: None,
             fill_id: None,
             border_id: None,
@@ -260,7 +259,7 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
             "color" => font.color = color_to_argb(value),
             "fontWeight" => font.bold = value == "bold",
             "fontStyle" => font.italic = value == "italic",
-            "fontFamily" => font.family = Some(value.to_string()),
+            "fontFamily" => font.name = Some(value.to_string()),
             "textDecoration" => {
                 font.underline = value.contains("underline");
                 font.strike = value.contains("line-through");
@@ -435,7 +434,7 @@ fn str_to_border(v: &str, pos: BorderPosition) -> Option<BorderProps> {
         "dashed" => BorderStyle::Dashed,
         "solid" => {
             let mut st = BorderStyle::Thin;
-            
+
             if size == 0.5 {
                 st = BorderStyle::Thin
             } else if size == 1.0 {
@@ -486,7 +485,7 @@ fn style_to_props_test() {
     assert_eq!(font.size, Some(String::from("18")));
     assert_eq!(font.color, Some(String::from("FFFFFF00")));
     assert_eq!(font.bold, true);
-    assert_eq!(font.family, Some(String::from("Calibri")));
+    assert_eq!(font.name, Some(String::from("Calibri")));
     assert_eq!(font.italic, true);
     assert_eq!(font.underline, true);
     assert_eq!(st.fill.unwrap().color, Some(String::from("FFFF0000")));
