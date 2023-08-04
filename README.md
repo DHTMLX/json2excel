@@ -148,18 +148,22 @@ interface IDataCell{
 
 interface IStyle {
     fontSize?: string;
-    align?: string;
-    verticalAlign?: string;
+    align?: string;         // left | center | right
+    verticalAlign?: string; // top | center | bottom
 
     background?: string;
     color?: string;
 
-    fontWeight?: string;
-    fontStyle?: string;
-    textDecoration?: string;
+    fontWeight?: string;     // bold
+    fontStyle?: string;      // italic
+    textDecoration?: string; // underline
 
     format?: string;
 
+    // border valie format: {size} {style} {color}
+    // size: 0.5px | 1px | 2px (works only with 'solid' style)
+    // style: dashed | dotted | double | thin | solid
+    // color: #000 | #000000
     borderTop?: string;
     borderRight?: string;
     borderBottom?: string;
