@@ -265,7 +265,7 @@ fn style_to_props(styles: &HashMap<String, String>) -> StyleProps {
                 font.strike = value.contains("line-through");
             }
             "fontSize" => font.size = px_to_pt(&value),
-            "textAlign" => st.align_h = Some(value.to_owned()),
+            "align" => st.align_h = Some(value.to_owned()),
             "verticalAlign" => st.align_v = Some(value.to_owned()),
             "borderTop" => border.top = str_to_border(&value, BorderPosition::Top),
             "borderRight" => border.right = str_to_border(&value, BorderPosition::Right),
@@ -471,7 +471,7 @@ fn style_to_props_test() {
     styles.insert(String::from("fontSize"), String::from("24px"));
     styles.insert(String::from("fontFamily"), String::from("Calibri"));
     styles.insert(String::from("textDecoration"), String::from("underline"));
-    styles.insert(String::from("textAlign"), String::from("left"));
+    styles.insert(String::from("align"), String::from("left"));
     styles.insert(String::from("verticalAlign"), String::from("bottom"));
     styles.insert(String::from("borderTop"), String::from("1px solid #9AFF02"));
     styles.insert(

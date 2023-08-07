@@ -204,7 +204,7 @@ var example = {
     "color": "rgba(129,129,129,1)",
     "borderLeft": "1px dashed #701243",
     "borderRight": "1px dashed #701243",
-    "textAlign": "center"
+    "align": "center"
   },
   {
     "color": "rgba(129,129,129,1)",
@@ -213,7 +213,7 @@ var example = {
     "fontFamily": "PT Sans",
     "verticalAlign": "center",
     "format": "General",
-    "textAlign": "center",
+    "align": "center",
     "borderTop": "1px dotted #000",
     "fontWeight": "bold",
     "borderRight": "1px dotted #000",
@@ -227,7 +227,7 @@ var example = {
     "verticalAlign": "center",
     "color": "rgba(129,129,129,1)",
     "fontWeight": "bold",
-    "textAlign": "right",
+    "align": "right",
     "format": "General",
     "borderLeft": "1px double #000",
     "borderRight": "1px double #000"
@@ -237,7 +237,7 @@ var example = {
     "borderBottom": "1px solid #94ff4d",
     "background": "rgba(234,234,234,1)",
     "verticalAlign": "top",
-    "textAlign": "center",
+    "align": "center",
     "borderTop": "1px solid #94ff4d",
     "borderLeft": "1px solid #94ff4d",
     "borderRight": "1px solid #94ff4d",
@@ -246,7 +246,7 @@ var example = {
     "fontFamily": "PT Sans"
   },
   {
-    "textAlign": "center",
+    "align": "center",
     "borderLeft": "1px solid #000",
     "fontWeight": "bold",
     "background": "rgba(234,234,234,1)",
@@ -271,7 +271,7 @@ var example = {
     "verticalAlign": "top",
     "borderLeft": "2px solid #000",
     "borderTop": "2px solid #000",
-    "textAlign": "right"
+    "align": "right"
   },
   {
     "fontFamily": "PT Sans",
@@ -279,7 +279,7 @@ var example = {
     "verticalAlign": "top",
     "background": "rgba(152,0,0,1)",
     "color": "rgba(0,0,0,1)",
-    "textAlign": "right",
+    "align": "right",
     "borderBottom": "1px solid #000",
     "format": "General",
     "borderLeft": "1px solid #000",
@@ -296,11 +296,11 @@ var example = {
     "fontFamily": "PT Sans",
     "borderTop": "1px solid #000",
     "borderRight": "1px solid #000",
-    "textAlign": "right"
+    "align": "right"
   },
   {
     "borderTop": "1px solid #000",
-    "textAlign": "right",
+    "align": "right",
     "format": "General",
     "fontFamily": "PT Sans",
     "borderBottom": "1px solid #000",
@@ -316,7 +316,7 @@ var example = {
     "borderTop": "1px solid #000",
     "color": "rgba(0,0,0,1)",
     "fontSize": "15px",
-    "textAlign": "right",
+    "align": "right",
     "borderBottom": "1px solid #000",
     "borderRight": "1px solid #000",
     "fontFamily": "Impact",
@@ -347,7 +347,7 @@ var example = {
     "color": "rgba(255,239,239,1)",
     "borderRight": "1px solid #000",
     "background": "rgba(110,110,255,1)",
-    "textAlign": "center",
+    "align": "center",
     "borderLeft": "1px solid #000",
     "borderTop": "1px solid #000",
     "fontSize": "16px",
