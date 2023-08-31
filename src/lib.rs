@@ -304,16 +304,16 @@ fn get_styles_data(style_table: StyleTable) -> String {
         let mut border_element = Element::new("border");
         let mut children: Vec<Element> = vec![];
 
-        if let Some(b) = &border.top {
+        if let Some(b) = &border.left {
             children.push(b.to_xml_el())
         }
         if let Some(b) = &border.right {
             children.push(b.to_xml_el())
         }
-        if let Some(b) = &border.bottom {
+        if let Some(b) = &border.top {
             children.push(b.to_xml_el())
         }
-        if let Some(b) = &border.left {
+        if let Some(b) = &border.bottom {
             children.push(b.to_xml_el())
         }
 
