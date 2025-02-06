@@ -87,7 +87,7 @@ impl StyleTable {
             borders: vec![Border::new()],
             xfs: vec![XFSProps::new()],
             custom_formats: HashMap::new(),
-            next_custom_format: 164,
+            next_custom_format: 165,
         };
         table.custom_formats.insert(String::from("General"), 164);
 

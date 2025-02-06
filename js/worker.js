@@ -1,4 +1,4 @@
-import { import_to_xlsx } from '../pkg/json2excel_wasm';
+import init, { import_to_xlsx } from '../pkg/json2excel_wasm.js';
 
 
 onmessage = function(e) {
@@ -10,7 +10,9 @@ onmessage = function(e) {
     }
 }
 
-function doConvert(data, config = {}){
+async function doConvert(data, config = {}){
+    await init();
+
     const result = import_to_xlsx(data);
     const blob = new Blob([result], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,"

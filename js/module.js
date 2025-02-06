@@ -1,7 +1,9 @@
-import { import_to_xlsx } from "../pkg/json2excel_wasm.js";
+import init, { import_to_xlsx } from "../pkg/json2excel_wasm.js";
 
 export { import_to_xlsx as toExcel };
-export function convert(data){
+export async function convert(data){
+    await init();
+    
     if (typeof data === "string")
         data = JSON.parse(data);
 

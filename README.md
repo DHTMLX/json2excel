@@ -24,8 +24,8 @@ yarn add json2excel-wasm
 
 ```js
 // worker.js
-import {convert} "json2excel-wasm";
-const blob = convert(json_data_to_export);
+import { convert } "json2excel-wasm";
+const blob = await convert(json_data_to_export);
 ```
 
 you can use code like next to force download of the result blob
@@ -43,15 +43,14 @@ document.body.remove(a);
 
 CDN links are the following:
 
-- https://cdn.dhtmlx.com/libs/json2excel/1.2/worker.js 
-- https://cdn.dhtmlx.com/libs/json2excel/1.2/module.js 
-- https://cdn.dhtmlx.com/libs/json2excel/1.2/json2excel_wasm_bg.wasm
+- https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js 
+- https://cdn.dhtmlx.com/libs/json2excel/1.3/module.js 
 
 You can import and use lib dynamically like 
 
 ```js
-const convert = import("https://cdn.dhtmlx.com/libs/json2excel/1.2/module.js");
-const blob = convert(json_data_to_export);
+const convert = import("https://cdn.dhtmlx.com/libs/json2excel/1.3/module.js");
+const blob = await convert(json_data_to_export);
 ```
 
 or use it as web worker
@@ -75,7 +74,7 @@ if you want to load worker script from CDN and not from your domain it requires 
 
 ```js
 var url = window.URL.createObjectURL(new Blob([
-    "importScripts('https://cdn.dhtmlx.com/libs/json2excel/1.2/worker.js');"
+    "importScripts('https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js');"
 ], { type: "text/javascript" }));
 
 var worker = new Promise((res) => {
