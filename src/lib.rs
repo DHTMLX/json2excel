@@ -131,10 +131,10 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                     Some(value) => {
                                         if !value.is_empty() {
                                             match value.parse::<f64>() {
-                                                Ok(_) => {
+                                                Ok(_) if !value.starts_with("0") || value.len() == 1 => {
                                                     inner_cell.value = CellValue::Value(value.to_owned());
                                                 },
-                                                Err(_) => {
+                                                Err(_) | _ => {
                                                     if value.starts_with("=") {
                                                         // [FIXME] formula can be corrupted
                                                         inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
@@ -177,10 +177,10 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                         let cell_name = cell_offsets_to_index(row_index, col_index);
                                         let mut inner_cell = InnerCell::new(cell_name, &None);
                                         match value.parse::<f64>() {
-                                            Ok(_) => {
+                                            Ok(_) if !value.starts_with("0") || value.len() == 1 => {
                                                 inner_cell.value = CellValue::Value(value.to_owned());
                                             },
-                                            Err(_) => {
+                                            Err(_) | _ => {
                                                 if value.starts_with("=") {
                                                     // [FIXME] formula can be corrupted
                                                     inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
