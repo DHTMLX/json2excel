@@ -523,7 +523,7 @@ fn get_sheet_data(
                             .add_attr("width", (col.width / WIDTH_COEF).to_string());
                         if let Some(true) = col.hidden {
                             column_element.add_attr("hidden", "1");
-                        }                       
+                        }
                         cols_children.push(column_element)
                     
                     }
