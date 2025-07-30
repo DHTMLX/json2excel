@@ -29,8 +29,8 @@
     $("#convert-button").addEventListener("click", function(e){
         if (!worker) {
             worker = new Promise((res) => {
-                // const path = "http://127.0.0.1:8080/dist/worker.js";
-                const path = "https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js";
+                 const path = `${window.location.origin}/dist/worker.js`;
+               // const path = "https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js";
                 const url = window.URL.createObjectURL(
                     new Blob([`importScripts('${path}');`], {
                         type: "text/javascript",

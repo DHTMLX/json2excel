@@ -33,11 +33,13 @@ const ROOT_RELS: &'static [u8] = br#"<?xml version="1.0" encoding="UTF-8" standa
 #[derive(Deserialize)]
 pub struct ColumnData {
     pub width: f32,
+    pub hidden: Option<bool>,
 }
 
 #[derive(Deserialize)]
 pub struct RowData {
     pub height: f32,
+    pub hidden: Option<bool>,
 }
 
 #[derive(Deserialize)]
@@ -56,6 +58,19 @@ pub struct MergedCell {
 pub struct Cell {
     pub v: Option<String>,
     pub s: Option<u32>,
+    pub hyperlink: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct ValidationSource {
+    pub r#type: String,
+    pub value: String,
+}
+
+#[derive(Deserialize)]
+pub struct DataValidation {
+    pub range: String,
+    pub source: ValidationSource,
 }
 
 #[derive(Deserialize)]
@@ -66,6 +81,9 @@ pub struct SheetData {
     cols: Option<Vec<Option<ColumnData>>>,
     rows: Option<Vec<Option<RowData>>>,
     merged: Option<Vec<MergedCell>>,
+    frozen_rows: Option<u32>,
+    frozen_cols: Option<u32>,
+    validations: Option<Vec<DataValidation>>,
 }
 
 #[derive(Deserialize)]
@@ -205,8 +223,19 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
 
         let sheet_info = get_sheet_info(sheet.name.clone(), sheet_index);
         zip.start_file(sheet_info.0.clone(), options).unwrap();
-        zip.write_all(get_sheet_data(rows, &sheet.cols, &sheet.rows, &sheet.merged).as_bytes()).unwrap();
-        sheets_info.push(sheet_info);
+        zip.write_all(
+            get_sheet_data(
+                rows,
+                &sheet.cols,
+                &sheet.rows,
+                &sheet.merged,
+                sheet.frozen_rows,
+                sheet.frozen_cols,
+                &sheet.validations,
+            )
+            .as_bytes(),
+        ).unwrap();
+       sheets_info.push(sheet_info);
     }
 
     zip.start_file("_rels/.rels", options).unwrap();
@@ -411,9 +440,49 @@ fn cell_offsets_to_index(row: usize, col: usize) -> String {
     format!("{}{}", String::from_utf8(chars).unwrap(), row + 1)
 }
 
-fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<ColumnData>>>, rows: &Option<Vec<Option<RowData>>>, merged: &Option<Vec<MergedCell>>) -> String {
+fn get_sheet_data(
+    cells: Vec<Vec<InnerCell>>, 
+    columns: &Option<Vec<Option<ColumnData>>>, 
+    rows: &Option<Vec<Option<RowData>>>, 
+    merged: &Option<Vec<MergedCell>>,
+    frozen_rows: Option<u32>,
+    frozen_cols: Option<u32>,
+    validations: &Option<Vec<DataValidation>>,
+) -> String {
     let mut worksheet = Element::new("worksheet");
     let mut sheet_view = Element::new("sheetView");
+
+    let has_frozen = frozen_cols.unwrap_or(0) > 0 || frozen_rows.unwrap_or(0) > 0;
+    if has_frozen {
+        let x_split = frozen_cols.unwrap_or(0);
+        let y_split = frozen_rows.unwrap_or(0);
+        let top_left_cell = cell_offsets_to_index(
+            y_split as usize,
+            x_split as usize,
+        );
+
+        let mut pane = Element::new("pane");
+        if x_split > 0 {
+            pane.add_attr("xSplit", x_split.to_string());
+        }
+        if y_split > 0 {
+            pane.add_attr("ySplit", y_split.to_string());
+        }
+
+        pane.add_attr("topLeftCell", top_left_cell.clone());
+        pane.add_attr("state", "frozen");
+
+        let active_pane = match (x_split > 0, y_split > 0) {
+            (true, true) => "bottomRight",
+            (true, false) => "topRight",
+            (false, true) => "bottomLeft",
+            _ => "topLeft",
+        };
+        pane.add_attr("activePane", active_pane);
+
+        sheet_view.add_children(vec![pane]);
+    }
+
     sheet_view.add_attr("workbookViewId", "0");
     let mut sheet_views = Element::new("sheetViews");
     sheet_views.add_children(vec![sheet_view]);
@@ -437,8 +506,12 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
                             .add_attr("max", (index + 1).to_string())
                             .add_attr("customWidth", "1")
                             .add_attr("width", (col.width / WIDTH_COEF).to_string());
+                        if let Some(true) = col.hidden {
+                            column_element.add_attr("hidden", "1");
+                        }                       
                         cols_children.push(column_element)
-                    },
+                    
+                    }
                     None => ()
                 }
             }
@@ -470,6 +543,9 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
                 row_el
                     .add_attr("ht", (row_data.height * HEIGHT_COEF).to_string())
                     .add_attr("customHeight", "1");
+                if let Some(true) = row_data.hidden {
+                    row_el.add_attr("hidden", "1");
+                }
             },
             None => ()
         }
@@ -539,7 +615,42 @@ fn get_sheet_data(cells: Vec<Vec<InnerCell>>, columns: &Option<Vec<Option<Column
         },
         None => ()
     }
+    if let Some(validations) = validations {
+        if !validations.is_empty() {
+            let mut dv_el = Element::new("dataValidations");
+            dv_el.add_attr("count", validations.len().to_string());
 
+            let dv_children: Vec<Element> = validations.iter().map(|v| {
+                let mut el = Element::new("dataValidation");
+
+                el.add_attr("type", "list");
+                el.add_attr("sqref", &v.range);
+                el.add_attr("allowBlank", "1");
+                el.add_attr("showDropDown", "0");
+
+                let mut f1 = Element::new("formula1");
+
+                match v.source.r#type.as_str() {
+                    "RangeReference" => {
+                        f1.add_value(&v.source.value);
+                    },
+                    "StringList" => {
+                       let value = format!("\"{}\"", v.source.value);
+                        f1.add_value(value);
+                    },
+                    _ => {
+                        f1.add_value(&v.source.value);
+                    }
+                }
+
+                el.add_children(vec![f1]);
+                el
+            }).collect();
+
+            dv_el.add_children(dv_children);
+            worksheet_children.push(dv_el);
+        }
+    }
     worksheet
         .add_attr("xmlns:xm", "http://schemas.microsoft.com/office/excel/2006/main")
         .add_attr("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac")

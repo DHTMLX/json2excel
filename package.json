@@ -18,6 +18,7 @@
   ],
   "module": "dist/module.js",
   "scripts": {
+    "dev": "yarn build && vite --mode worker",
     "build:wasm": "cargo build && wasm-pack build --target web",
     "build:module": "vite build --mode module",
     "build:worker": "vite build --mode worker",
