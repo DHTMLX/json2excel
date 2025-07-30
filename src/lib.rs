@@ -673,7 +673,7 @@ fn get_sheet_data(
         for (i, h) in hyperlinks.iter().enumerate() {
             let mut hyperlink_el = Element::new("hyperlink");
             hyperlink_el
-                .add_attr("r:id", format!("rId{}", 1000 + i))
+                .add_attr("r:id", format!("rId{}", 1 + i))
                 .add_attr("ref", &h.cell);
             hyperlink_children.push(hyperlink_el);
         }
@@ -728,7 +728,7 @@ fn get_sheet_rels(hyperlinks: &[Hyperlink]) -> String {
 
     for (i, link) in hyperlinks.iter().enumerate() {
         let mut rel = Element::new("Relationship");
-        rel.add_attr("Id", format!("rId{}", 1000 + i));
+        rel.add_attr("Id", format!("rId{}", 1 + i));
         rel.add_attr("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink");
         rel.add_attr("Target", &link.url);
         rel.add_attr("TargetMode", "External");
