@@ -98,6 +98,11 @@ struct InnerCell {
     style: Option<u32>
 }
 
+#[derive(Clone)]
+struct Hyperlink {
+    cell: String,
+    url: String,
+}
 impl InnerCell {
     pub fn new(cell: String, style: &Option<u32>) -> InnerCell {
         InnerCell {
@@ -132,9 +137,9 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
     let w = Cursor::new(buf);
     let mut zip = zip::ZipWriter::new(w);
     let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored).unix_permissions(0o755);
-
     for (sheet_index, sheet) in data.data.iter().enumerate() {
         let mut rows: Vec<Vec<InnerCell>> = vec!();
+        let mut hyperlinks: Vec<Hyperlink> = vec![];
         match &sheet.cells {
             Some(cells) => {
                 for (row_index, row) in cells.iter().enumerate() {
@@ -144,7 +149,12 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                             Some(cell) => {
                                 let cell_name = cell_offsets_to_index(row_index, col_index);
                                 let mut inner_cell = InnerCell::new(cell_name, &cell.s);
-
+                                if let Some(link) = &cell.hyperlink {
+                                    hyperlinks.push(Hyperlink {
+                                        cell: inner_cell.cell.clone(),
+                                        url: link.clone(),
+                                    });
+                                }
                                 match &cell.v {
                                     Some(value) => {
                                         if !value.is_empty() {
@@ -222,6 +232,9 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
         }
 
         let sheet_info = get_sheet_info(sheet.name.clone(), sheet_index);
+        let rels_path = format!("xl/worksheets/_rels/sheet{}.xml.rels", sheet_index + 1);
+        zip.start_file(rels_path.clone(), options).unwrap();
+        zip.write_all(get_sheet_rels(&hyperlinks).as_bytes()).unwrap();
         zip.start_file(sheet_info.0.clone(), options).unwrap();
         zip.write_all(
             get_sheet_data(
@@ -232,6 +245,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                 sheet.frozen_rows,
                 sheet.frozen_cols,
                 &sheet.validations,
+                &hyperlinks,
             )
             .as_bytes(),
         ).unwrap();
@@ -448,6 +462,7 @@ fn get_sheet_data(
     frozen_rows: Option<u32>,
     frozen_cols: Option<u32>,
     validations: &Option<Vec<DataValidation>>,
+    hyperlinks: &[Hyperlink],
 ) -> String {
     let mut worksheet = Element::new("worksheet");
     let mut sheet_view = Element::new("sheetView");
@@ -651,6 +666,22 @@ fn get_sheet_data(
             worksheet_children.push(dv_el);
         }
     }
+    if !hyperlinks.is_empty() {
+        let mut hyperlinks_el = Element::new("hyperlinks");
+        let mut hyperlink_children = vec![];
+
+        for (i, h) in hyperlinks.iter().enumerate() {
+            let mut hyperlink_el = Element::new("hyperlink");
+            hyperlink_el
+                .add_attr("r:id", format!("rId{}", 1000 + i))
+                .add_attr("ref", &h.cell);
+            hyperlink_children.push(hyperlink_el);
+        }
+
+        hyperlinks_el.add_children(hyperlink_children);
+        worksheet_children.push(hyperlinks_el);
+    }
+        
     worksheet
         .add_attr("xmlns:xm", "http://schemas.microsoft.com/office/excel/2006/main")
         .add_attr("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac")
@@ -687,6 +718,25 @@ fn get_shared_strings_data(shared_strings: Vec<String>, shared_strings_count: i3
 fn get_sheet_info(name: Option<String>, index: usize) -> (String, String) {
     let sheet_name = name.unwrap_or(format!("sheet{}", index + 1));
     (format!("xl/worksheets/sheet{}.xml", index + 1), sheet_name)
+}
+
+fn get_sheet_rels(hyperlinks: &[Hyperlink]) -> String {
+    let mut rels = Element::new("Relationships");
+    rels.add_attr("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
+
+    let mut children = vec![];
+
+    for (i, link) in hyperlinks.iter().enumerate() {
+        let mut rel = Element::new("Relationship");
+        rel.add_attr("Id", format!("rId{}", 1000 + i));
+        rel.add_attr("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink");
+        rel.add_attr("Target", &link.url);
+        rel.add_attr("TargetMode", "External");
+        children.push(rel);
+    }
+
+    rels.add_children(children);
+    rels.to_xml()
 }
 
 fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
