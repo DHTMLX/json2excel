@@ -1,368 +1,850 @@
 var example = {
-  "data": [
-  {
-    "name": "Sheet1",
-    "cells": [
-      [
+  data: [
+    {
+      name: "data",
+      cols: [
         {
-          "v": "Report - July 2016",
-          "s": 14
+          width: 59.5,
         },
         {
-          "v": null,
-          "s": 15
+          width: 93.5,
         },
         {
-          "v": null,
-          "s": 15
+          width: 160.31,
+          hidden: true,
         },
         {
-          "v": null,
-          "s": 15
+          width: 139.655,
         },
         {
-          "v": null,
-          "s": 15
-        }
+          width: 150.53499,
+        },
+        {
+          width: 129.965,
+        },
+        {
+          width: 139.655,
+        },
+        {
+          width: 160.31,
+        },
+        {
+          width: 129.965,
+        },
+        {
+          width: 129.965,
+        },
+        {
+          width: 129.965,
+        },
+        {
+          width: 129.965,
+        },
+        {
+          width: 129.965,
+        },
       ],
-      [
+      rows: [
         {
-          "v": "Region",
-          "s": 2
+          height: 40,
         },
         {
-          "v": "Country",
-          "s": 2
+          height: 40,
         },
         {
-          "v": "Sales - Group A",
-          "s": 3
+          height: 40,
         },
         {
-          "v": "Sales - Group B",
-          "s": 3
+          height: 40,
+          hidden: true,
         },
         {
-          "v": "Total",
-          "s": 4
-        }
+          height: 40,
+        },
+        {
+          height: 40,
+        },
+        {
+          height: 40,
+        },
+        {
+          height: 40,
+        },
+        {
+          height: 40,
+        },
+        {
+          height: 40,
+        },
+        {
+          height: 120,
+        },
       ],
-      [
-        {
-          "v": "Europe",
-          "s": 5
-        },
-        {
-          "v": "Germany",
-          "s": 6
-        },
-        {
-          "v": "188400",
-          "s": 7
-        },
-        {
-          "v": "52000",
-          "s": 7
-        },
-        {
-          "v": "240400",
-          "s": 7
-        }
+      cells: [
+        [
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: "Project",
+            s: 1,
+          },
+          {
+            v: "Access",
+            s: 1,
+          },
+          {
+            v: "Status",
+            s: 1,
+          },
+          {
+            v: "Owner",
+            s: 1,
+          },
+          {
+            v: "Balance",
+            s: 2,
+          },
+          {
+            v: "Number of hours",
+            s: 2,
+          },
+          {
+            v: "Number of renewals",
+            s: 1,
+          },
+          {
+            v: "Calendar",
+            s: 3,
+          },
+          null,
+          {
+            v: "Cost",
+            s: 2,
+          },
+          {
+            v: "Budget",
+            s: 2,
+          },
+          {
+            v: "Project ID",
+            s: 4,
+          },
+        ],
+        [
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: null,
+            s: 2,
+          },
+          {
+            v: null,
+            s: 2,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+          {
+            v: "Start date",
+            s: 3,
+          },
+          {
+            v: "End date",
+            s: 3,
+          },
+          {
+            v: null,
+            s: 2,
+          },
+          {
+            v: null,
+            s: 2,
+          },
+          {
+            v: null,
+            s: 1,
+          },
+        ],
+        [
+          {
+            v: "true",
+            s: 5,
+          },
+          {
+            v: "Real Estate",
+            s: 6,
+          },
+          {
+            v: "Gary Ortiz, Albert Williamson, Russell Robinson",
+            s: 6,
+          },
+          {
+            v: "Done",
+            s: 7,
+            hyperlink:
+              "https://git.webix.io/iizobov/salesforce/src/branch/prod",
+          },
+          {
+            v: "Louise Fisher",
+            s: 8,
+          },
+          {
+            v: "8180.0",
+            s: 9,
+          },
+          {
+            v: "92.0",
+            s: 10,
+          },
+          {
+            v: "1-2 times",
+            s: 6,
+          },
+          {
+            v: "43134.0",
+            s: 11,
+          },
+          {
+            v: "43256.0",
+            s: 11,
+          },
+          {
+            v: "3588.0",
+            s: 9,
+          },
+          {
+            v: "11768.0",
+            s: 9,
+          },
+          {
+            v: "ISS-996.9",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "false",
+            s: 5,
+          },
+          {
+            v: null,
+            s: 6,
+          },
+          {
+            v: "Mildred Fuller, Gary Ortiz",
+            s: 6,
+          },
+          {
+            v: "Done",
+            s: 6,
+          },
+          {
+            v: "Fred Duncan",
+            s: 8,
+          },
+          {
+            v: "-6389.0",
+            s: 9,
+          },
+          {
+            v: "484.0",
+            s: 12,
+          },
+          {
+            v: "1 time",
+            s: 6,
+          },
+          {
+            v: "43106.0",
+            s: 11,
+          },
+          {
+            v: "43109.0",
+            s: 11,
+          },
+          {
+            v: "21296.0",
+            s: 9,
+          },
+          {
+            v: "14907.0",
+            s: 9,
+          },
+          {
+            v: "ISS-111.0",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "false",
+            s: 5,
+          },
+          {
+            v: null,
+            s: 6,
+          },
+          {
+            v: "Albert Williamson, Russell Robinson, Phyllis Webb",
+            s: 6,
+          },
+          {
+            v: "Louise Fisher",
+            s: 13,
+          },
+          {
+            v: "Michael Rice",
+            s: 8,
+          },
+          {
+            v: "56076.0",
+            s: 9,
+          },
+          {
+            v: "345.0",
+            s: 10,
+          },
+          {
+            v: "1-2 times",
+            s: 6,
+          },
+          {
+            v: "43108.0",
+            s: 11,
+          },
+          {
+            v: "43262.0",
+            s: 11,
+          },
+          {
+            v: "14835.0",
+            s: 9,
+          },
+          {
+            v: "70911.0",
+            s: 9,
+          },
+          {
+            v: "ISS-678.9",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "true",
+            s: 5,
+          },
+          {
+            v: "HR System",
+            s: 6,
+          },
+          {
+            v: "Russell Robinson, Phyllis Webb",
+            s: 6,
+          },
+          {
+            v: "Done",
+            s: 6,
+          },
+          {
+            v: "Daniel Peterson",
+            s: 8,
+          },
+          {
+            v: "2876.0",
+            s: 9,
+          },
+          {
+            v: "340.0",
+            s: 10,
+          },
+          {
+            v: "1 time",
+            s: 6,
+          },
+          {
+            v: "43163.0",
+            s: 11,
+          },
+          {
+            v: "43138.0",
+            s: 11,
+          },
+          {
+            v: "15980.0",
+            s: 9,
+          },
+          {
+            v: "18856.0",
+            s: 9,
+          },
+          {
+            v: "ISS-134.2",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "true",
+            s: 5,
+          },
+          {
+            v: null,
+            s: 6,
+          },
+          {
+            v: "Gary Ortiz, Albert Williamson, Russell Robinson, Phyllis Webb",
+            s: 6,
+          },
+          {
+            v: "Done",
+            s: 6,
+          },
+          {
+            v: "Andrew Stewart",
+            s: 8,
+          },
+          {
+            v: "3016.0",
+            s: 9,
+          },
+          {
+            v: "57.0",
+            s: 10,
+          },
+          {
+            v: "1-2 times",
+            s: 6,
+          },
+          {
+            v: "43106.0",
+            s: 11,
+          },
+          {
+            v: "43140.0",
+            s: 11,
+          },
+          {
+            v: "2052.0",
+            s: 9,
+          },
+          {
+            v: "5068.0",
+            s: 9,
+          },
+          {
+            v: "ISS-433.2",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "false",
+            s: 5,
+          },
+          {
+            v: null,
+            s: 6,
+          },
+          {
+            v: "Mildred Fuller, Phyllis Webb",
+            s: 6,
+          },
+          {
+            v: "Done",
+            s: 6,
+          },
+          {
+            v: "Martin Thompson",
+            s: 8,
+          },
+          {
+            v: "8311.0",
+            s: 9,
+          },
+          {
+            v: "211.0",
+            s: 10,
+          },
+          {
+            v: "more than 5 times",
+            s: 6,
+          },
+          {
+            v: "43253.0",
+            s: 11,
+          },
+          {
+            v: "43106.0",
+            s: 11,
+          },
+          {
+            v: "8229.0",
+            s: 9,
+          },
+          {
+            v: "16540.0",
+            s: 9,
+          },
+          {
+            v: "ISS-356.2",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "true",
+            s: 5,
+          },
+          {
+            v: "Ticket System",
+            s: 6,
+          },
+          {
+            v: "Mildred Fuller, Albert Williamson",
+            s: 6,
+          },
+          {
+            v: "In Progress",
+            s: 6,
+          },
+          {
+            v: "Martin Thompson",
+            s: 8,
+          },
+          {
+            v: "-22.0",
+            s: 9,
+          },
+          {
+            v: "3.0",
+            s: 14,
+          },
+          {
+            v: "1 time",
+            s: 6,
+          },
+          {
+            v: "43621.0",
+            s: 11,
+          },
+          {
+            v: "43531.0",
+            s: 11,
+          },
+          {
+            v: "144.0",
+            s: 9,
+          },
+          {
+            v: "122.0",
+            s: 9,
+          },
+          {
+            v: "ISS-342.1",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: "true",
+            s: 5,
+          },
+          {
+            v: null,
+            s: 6,
+          },
+          {
+            v: "Gary Ortiz, Phyllis Webb",
+            s: 6,
+          },
+          {
+            v: "In Progress",
+            s: 6,
+          },
+          {
+            v: "Mark Harper",
+            s: 8,
+          },
+          {
+            v: "9019.0",
+            s: 9,
+          },
+          {
+            v: "76.0",
+            s: 10,
+          },
+          {
+            v: "more than 5 times",
+            s: 6,
+          },
+          {
+            v: "43500.0",
+            s: 11,
+          },
+          {
+            v: "43532.0",
+            s: 11,
+          },
+          {
+            v: "3496.0",
+            s: 9,
+          },
+          {
+            v: "12515.0",
+            s: 9,
+          },
+          {
+            v: "ISS-256.7",
+            s: 6,
+          },
+        ],
+        [
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: "Total",
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: "s",
+            s: 16,
+          },
+          {
+            v: "56076",
+            s: 15,
+          },
+          {
+            v: "Avg:201.0\n            Med:151.5\n            Max:484.0\n            Min:3.0\n            Sum:1608.0",
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+          {
+            v: "69620",
+            s: 15,
+          },
+          {
+            v: "150687",
+            s: 15,
+          },
+          {
+            v: null,
+            s: 15,
+          },
+        ],
       ],
-      [
+      merged: [
         {
-          "v": "Europe",
-          "s": 5
+          from: {
+            column: 8,
+            row: 0,
+          },
+          to: {
+            column: 9,
+            row: 0,
+          },
         },
-        {
-          "v": "France",
-          "s": 5
-        },
-        {
-          "v": "192200",
-          "s": 8
-        },
-        {
-          "v": "12000",
-          "s": 9
-        },
-        {
-          "v": "204200",
-          "s": 7
-        }
       ],
-      [
+      validations: [
         {
-          "v": "Europe",
-          "s": 5
+          range: "H3 D6:D9",
+          source: {
+            type: "RangeReference",
+            value: "data!$E$3:$E$10",
+          },
         },
         {
-          "v": "Poland",
-          "s": 6
+          range: "E11",
+          source: {
+            type: "RangeReference",
+            value: 'NOT(ISERROR(SEARCH(("Some"),(E11))))',
+          },
         },
-        {
-          "v": "68900",
-          "s": 7
-        },
-        {
-          "v": "8000",
-          "s": 7
-        },
-        {
-          "v": "76900",
-          "s": 7
-        }
       ],
-      [
-        {
-          "v": "Asia",
-          "s": 5
-        },
-        {
-          "v": "Japan",
-          "s": 5
-        },
-        {
-          "v": "140000",
-          "s": 10
-        },
-        {
-          "v": "14000",
-          "s": 11
-        },
-        {
-          "v": "154000",
-          "s": 7
-        }
-      ],
-      [
-        {
-          "v": "Asia",
-          "s": 5
-        },
-        {
-          "v": "China",
-          "s": 5
-        },
-        {
-          "v": "50000",
-          "s": 7
-        },
-        {
-          "v": "4800",
-          "s": 7
-        },
-        {
-          "v": "54800",
-          "s": 7
-        }
-      ]
-    ],
-    "merged": [
-      {
-        "from": {
-          "column": 0,
-          "row": 0
-        },
-        "to": {
-          "column": 4,
-          "row": 0
-        }
-      }
-    ]
-  }
-],
-"styles": [
-  {
-    "fontFamily": "Calibri",
-    "fontSize": "16px",
-    "color": "rgba(0,0,0,1)",
-    "borderRight": "1px solid #34e343",
-    "borderLeft": "1px solid #34e343",
-    "format": "General",
-    "borderTop": "1px solid #34e343",
-    "borderBottom": "1px solid #34e343"
-  },
-  {
-    "fontSize": "16px",
-    "fontFamily": "Calibri",
-    "borderLeft": "0.5px solid #000",
-    "borderTop": "0.5px solid #000",
-    "borderRight": "0.5px solid #000",
-    "format": "General",
-    "borderBottom": "0.5px solid #000"
-  },
-  {
-    "fontWeight": "bold",
-    "borderBottom": "1px dashed #701243",
-    "verticalAlign": "top",
-    "background": "rgba(234,234,234,1)",
-    "fontSize": "15px",
-    "fontFamily": "PT Sans",
-    "borderTop": "1px dashed #701243",
-    "format": "General",
-    "color": "rgba(129,129,129,1)",
-    "borderLeft": "1px dashed #701243",
-    "borderRight": "1px dashed #701243",
-    "align": "center"
-  },
-  {
-    "color": "rgba(129,129,129,1)",
-    "borderBottom": "1px dotted #000",
-    "fontSize": "15px",
-    "fontFamily": "PT Sans",
-    "verticalAlign": "center",
-    "format": "General",
-    "align": "center",
-    "borderTop": "1px dotted #000",
-    "fontWeight": "bold",
-    "borderRight": "1px dotted #000",
-    "borderLeft": "1px dotted #000"
-  },
-  {
-    "fontFamily": "PT Sans",
-    "borderBottom": "1px double #000",
-    "borderTop": "1px double #000",
-    "fontSize": "15px",
-    "verticalAlign": "center",
-    "color": "rgba(129,129,129,1)",
-    "fontWeight": "bold",
-    "align": "right",
-    "format": "General",
-    "borderLeft": "1px double #000",
-    "borderRight": "1px double #000"
-  },
-  {
-    "format": "General",
-    "borderBottom": "1px solid #94ff4d",
-    "background": "rgba(234,234,234,1)",
-    "verticalAlign": "top",
-    "align": "center",
-    "borderTop": "1px solid #94ff4d",
-    "borderLeft": "1px solid #94ff4d",
-    "borderRight": "1px solid #94ff4d",
-    "color": "rgba(129,129,129,1)",
-    "fontSize": "15px",
-    "fontFamily": "PT Sans"
-  },
-  {
-    "align": "center",
-    "borderLeft": "1px solid #000",
-    "fontWeight": "bold",
-    "background": "rgba(234,234,234,1)",
-    "fontStyle": "italic",
-    "borderRight": "1px solid #000",
-    "textDecoration": "underline",
-    "color": "rgba(129,129,129,1)",
-    "format": "General",
-    "fontFamily": "PT Sans",
-    "fontSize": "15px",
-    "verticalAlign": "bottom",
-    "borderBottom": "1px solid #000",
-    "borderTop": "1px solid #000"
-  },
-  {
-    "fontFamily": "PT Sans",
-    "fontSize": "15px",
-    "borderRight": "2px solid #000",
-    "borderBottom": "2px solid #000",
-    "format": "General",
-    "color": "rgba(0,0,0,1)",
-    "verticalAlign": "top",
-    "borderLeft": "2px solid #000",
-    "borderTop": "2px solid #000",
-    "align": "right"
-  },
-  {
-    "fontFamily": "PT Sans",
-    "borderTop": "1px solid #000",
-    "verticalAlign": "top",
-    "background": "rgba(152,0,0,1)",
-    "color": "rgba(0,0,0,1)",
-    "align": "right",
-    "borderBottom": "1px solid #000",
-    "format": "General",
-    "borderLeft": "1px solid #000",
-    "fontSize": "15px",
-    "borderRight": "1px solid #000"
-  },
-  {
-    "fontSize": "32px",
-    "borderLeft": "1px solid #000",
-    "borderBottom": "1px solid #000",
-    "verticalAlign": "top",
-    "format": "General",
-    "color": "rgba(0,0,0,1)",
-    "fontFamily": "PT Sans",
-    "borderTop": "1px solid #000",
-    "borderRight": "1px solid #000",
-    "align": "right"
-  },
-  {
-    "borderTop": "1px solid #000",
-    "align": "right",
-    "format": "General",
-    "fontFamily": "PT Sans",
-    "borderBottom": "1px solid #000",
-    "fontSize": "15px",
-    "borderRight": "1px solid #000",
-    "borderLeft": "1px solid #000",
-    "verticalAlign": "top",
-    "color": "rgba(60,120,216,1)"
-  },
-  {
-    "borderLeft": "1px solid #000",
-    "format": "General",
-    "borderTop": "1px solid #000",
-    "color": "rgba(0,0,0,1)",
-    "fontSize": "15px",
-    "align": "right",
-    "borderBottom": "1px solid #000",
-    "borderRight": "1px solid #000",
-    "fontFamily": "Impact",
-    "verticalAlign": "top"
-  },
-  {
-    "background": "rgba(255,255,0,1)",
-    "borderLeft": "1px solid #000000",
-    "borderTop": "1px solid #000000",
-    "borderRight": "1px solid #000000",
-    "fontSize": "16px",
-    "borderBottom": "1px solid #000000",
-    "color": "rgba(255,0,0,1)",
-    "format": "General",
-    "fontFamily": "Calibri"
-  },
-  {
-    "borderBottom": "1px solid #000",
-    "borderTop": "1px solid #000",
-    "color": "rgba(0,0,0,1)",
-    "fontSize": "16px",
-    "fontFamily": "Calibri",
-    "borderRight": "1px solid #000",
-    "borderLeft": "1px solid #000",
-    "format": "General"
-  },
-  {
-    "color": "rgba(255,239,239,1)",
-    "borderRight": "1px solid #000",
-    "background": "rgba(110,110,255,1)",
-    "align": "center",
-    "borderLeft": "1px solid #000",
-    "borderTop": "1px solid #000",
-    "fontSize": "16px",
-    "borderBottom": "1px solid #000",
-    "format": "General",
-    "fontFamily": "PT Sans"
-  },
-  {
-    "borderBottom": "1px solid #000",
-    "format": "General",
-    "borderRight": "1px solid #000",
-    "fontFamily": "Calibri",
-    "fontSize": "16px",
-    "borderTop": "1px solid #000",
-    "borderLeft": "1px solid #000"
-  }
-]
-}
+      frozen_cols: 2,
+      frozen_rows: 1,
+    },
+  ],
+  styles: [
+    {
+      format: "General",
+      fontSize: "13.333333px",
+      verticalAlign: "bottom",
+      fontFamily: "Calibri",
+      color: "rgba(0,0,0,1)",
+    },
+    {
+      color: "rgba(0,0,0,1)",
+      verticalAlign: "center",
+      fontWeight: "bold",
+      format: "General",
+      background: "rgba(247,247,247,1)",
+      fontFamily: "Calibri",
+    },
+    {
+      color: "rgba(0,0,0,1)",
+      background: "rgba(247,247,247,1)",
+      fontWeight: "bold",
+      fontFamily: "Calibri",
+      align: "right",
+      format: "General",
+      verticalAlign: "center",
+    },
+    {
+      background: "rgba(247,247,247,1)",
+      color: "rgba(0,0,0,1)",
+      align: "center",
+      fontFamily: "Calibri",
+      fontWeight: "bold",
+      verticalAlign: "center",
+      format: "dd/mm/yy",
+    },
+    {
+      fontWeight: "bold",
+      format: "@",
+      verticalAlign: "center",
+      fontFamily: "Calibri",
+      background: "rgba(247,247,247,1)",
+      color: "rgba(0,0,0,1)",
+      align: "center",
+    },
+    {
+      color: "rgba(0,0,0,1)",
+      fontSize: "13.333333px",
+      format: "General",
+      fontFamily: "Calibri",
+      verticalAlign: "center",
+    },
+    {
+      color: "rgba(0,0,0,1)",
+      fontFamily: "Calibri",
+      fontSize: "13.333333px",
+      format: "@",
+      verticalAlign: "center",
+    },
+    {
+      color: "rgba(0,0,255,1)",
+      format: "@",
+      textDecoration: "underline",
+      verticalAlign: "center",
+      fontSize: "13.333333px",
+    },
+    {
+      format: "@",
+      fontSize: "13.333333px",
+      fontFamily: "Calibri",
+      verticalAlign: "center",
+      background: "rgba(173,216,230,1)",
+      color: "rgba(0,0,0,1)",
+    },
+    {
+      fontFamily: "Calibri",
+      align: "right",
+      format: "General",
+      verticalAlign: "center",
+      color: "rgba(0,0,0,1)",
+      fontSize: "13.333333px",
+    },
+    {
+      fontFamily: "Calibri",
+      fontSize: "13.333333px",
+      format: "#.##",
+      align: "right",
+      verticalAlign: "center",
+      color: "rgba(0,0,0,1)",
+    },
+    {
+      fontFamily: "Calibri",
+      format: "dd/mm/yy",
+      verticalAlign: "center",
+      fontSize: "13.333333px",
+      align: "center",
+      color: "rgba(0,0,0,1)",
+    },
+    {
+      color: "rgba(255,255,255,1)",
+      format: "#.##",
+      fontFamily: "Calibri",
+      verticalAlign: "center",
+      background: "rgba(244,67,54,1)",
+      align: "right",
+      fontSize: "13.333333px",
+    },
+    {
+      fontFamily: "Calibri",
+      format: "@",
+      color: "rgba(0,0,0,1)",
+      fontSize: "13.333333px",
+      verticalAlign: "center",
+    },
+    {
+      format: "#.##",
+      fontSize: "13.333333px",
+      fontFamily: "Calibri",
+      color: "rgba(255,255,255,1)",
+      verticalAlign: "center",
+      align: "right",
+      background: "rgba(76,175,80,1)",
+    },
+    {
+      fontFamily: "Calibri",
+      background: "rgba(247,247,247,1)",
+      fontWeight: "bold",
+      fontSize: "13.333333px",
+      format: "General",
+      verticalAlign: "center",
+      color: "rgba(0,0,0,1)",
+    },
+    {
+      verticalAlign: "center",
+      color: "rgba(0,0,0,1)",
+      fontWeight: "bold",
+      fontFamily: "Calibri",
+      background: "rgba(247,247,247,1)",
+      fontSize: "13.333333px",
+      format: "General",
+    },
+  ],
+};
