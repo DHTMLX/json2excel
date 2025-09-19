@@ -134,8 +134,8 @@ var example = {
         ],
         [
           {
-            v: null,
-            s: 1,
+            v: "This is a very long text that will demonstrate how the cell handles long content.",
+            s: 17,
           },
           {
             v: null,
@@ -846,5 +846,15 @@ var example = {
       fontSize: "13.333333px",
       format: "General",
     },
+    {
+      verticalAlign: "center",
+      color: "rgba(0,0,0,1)",
+      fontWeight: "bold",
+      fontFamily: "Calibri",
+      background: "rgba(247,247,247,1)",
+      fontSize: "13.333333px",
+      format: "General",
+      textWrap: true
+    }
   ],
 };
