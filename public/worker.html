@@ -30,7 +30,7 @@
         if (!worker) {
             worker = new Promise((res) => {
                  const path = `${window.location.origin}/dist/worker.js`;
-               // const path = "https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js";
+               // const path = "https://cdn.dhtmlx.com/libs/json2excel/1.5/worker.js";
                 const url = window.URL.createObjectURL(
                     new Blob([`importScripts('${path}');`], {
                         type: "text/javascript",
@@ -43,7 +43,7 @@
                         res(x);
                     } else if (e.data.type === "ready"){
                         const blob = e.data.blob;
-                        
+
                         const a = document.createElement("a");
                         a.href = URL.createObjectURL(blob);
                         a.download = "data.xlsx";

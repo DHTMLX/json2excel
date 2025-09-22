@@ -20,12 +20,12 @@
 
     <script src="./datasets.js"></script>
     <script type="module">
-    import { convert } from "https://cdn.dhtmlx.com/libs/json2excel/1.3/module.js";
+    import { convert } from "https://cdn.dhtmlx.com/libs/json2excel/1.5/module.js";
     let $ = document.querySelector.bind(document);
 
     const dataArea = $(".spreadsheet-data");
     dataArea.value = JSON.stringify(example, undefined, 2);
-    
+
     $("#convert-button").addEventListener("click", async function(e){
         const blob = await convert(dataArea.value);
         const a = document.createElement("a");

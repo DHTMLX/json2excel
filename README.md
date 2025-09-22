@@ -1,9 +1,9 @@
-JSON2Excel 
+JSON2Excel
 --------------
 
 JSON2Excel is a Rust and WebAssembly-based library that allows converting JSON files into Excel ones at ease.
 
-[![npm version](https://badge.fury.io/js/json2excel-wasm.svg)](https://badge.fury.io/js/json2excel-wasm) 
+[![npm version](https://badge.fury.io/js/json2excel-wasm.svg)](https://badge.fury.io/js/json2excel-wasm)
 
 ### How to build
 
@@ -43,13 +43,13 @@ document.body.remove(a);
 
 CDN links are the following:
 
-- https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js 
-- https://cdn.dhtmlx.com/libs/json2excel/1.3/module.js 
+- https://cdn.dhtmlx.com/libs/json2excel/1.5/worker.js
+- https://cdn.dhtmlx.com/libs/json2excel/1.5/module.js
 
-You can import and use lib dynamically like 
+You can import and use lib dynamically like
 
 ```js
-const convert = import("https://cdn.dhtmlx.com/libs/json2excel/1.3/module.js");
+const convert = import("https://cdn.dhtmlx.com/libs/json2excel/1.5/module.js");
 const blob = await convert(json_data_to_export);
 ```
 
@@ -57,7 +57,7 @@ or use it as web worker
 
 ```js
 // you need to server worker from the same domain as the main script
-var worker = new Worker("./worker.js"); 
+var worker = new Worker("./worker.js");
 worker.addEventListener("message", ev => {
     if (ev.data.type === "ready"){
         const blob = ev.data.blob;
@@ -74,11 +74,11 @@ if you want to load worker script from CDN and not from your domain it requires 
 
 ```js
 var url = window.URL.createObjectURL(new Blob([
-    "importScripts('https://cdn.dhtmlx.com/libs/json2excel/1.3/worker.js');"
+    "importScripts('https://cdn.dhtmlx.com/libs/json2excel/1.5/worker.js');"
 ], { type: "text/javascript" }));
 
 var worker = new Promise((res) => {
-    const x = Worker(url); 
+    const x = Worker(url);
     worker.addEventListener("message", ev => {
         if (ev.data.type === "ready"){
             const json = ev.data.data;
@@ -128,7 +128,7 @@ interface IMergedCells {
 }
 
 interface IDataPoint {
-    column: number; 
+    column: number;
     row: number;
 }
 
@@ -171,6 +171,6 @@ interface IStyle {
 ```
 
 
-### License 
+### License
 
 MIT
