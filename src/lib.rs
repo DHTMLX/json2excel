@@ -13,8 +13,9 @@ use zip::write::FileOptions;
 use std::io::Cursor;
 
 use std::collections::HashMap;
+use serde_json::Value;
 
-type Dict = HashMap<String, String>;
+type Dict = HashMap<String, Value>;
 
 pub mod xml;
 use crate::xml::Element;
@@ -412,13 +413,17 @@ fn get_styles_data(style_table: StyleTable) -> String {
                 .add_attr("applyBorder", "1")
                 .add_attr("borderId", id.to_string());
         });
-        if p.align_h.is_some() || p.align_v.is_some() {
+        if p.align_h.is_some() || p.align_v.is_some() || p.wrap_text {
             let mut alignment = Element::new("alignment");
+
             p.align_h.as_ref().map(|v| alignment.add_attr("horizontal", v));
             p.align_v.as_ref().map(|v| alignment.add_attr("vertical", v));
+            if p.wrap_text {
+                alignment.add_attr("wrapText", "1");
+            }
+
             xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
         }
-
         xf
     }).collect();
 
