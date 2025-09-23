@@ -291,7 +291,7 @@ fn style_to_props(styles: &HashMap<String, Value>) -> StyleProps {
             "borderRight" => border.right = value.as_str().and_then(|s| str_to_border(s, BorderPosition::Right)),
             "borderBottom" => border.bottom = value.as_str().and_then(|s| str_to_border(s, BorderPosition::Bottom)),
             "borderLeft" => border.left = value.as_str().and_then(|s| str_to_border(s, BorderPosition::Left)),
-            "textWrap" => {
+            "wrapText" => {
                 // accept boolean, string or number values
                 match value {
                     Value::Bool(b) => st.wrap_text = *b,
