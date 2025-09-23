@@ -854,7 +854,7 @@ var example = {
       background: "rgba(247,247,247,1)",
       fontSize: "13.333333px",
       format: "General",
-      textWrap: true
+      wrapText: true
     }
   ],
 };
