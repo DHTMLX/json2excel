@@ -702,6 +702,13 @@ var example = {
             value: 'NOT(ISERROR(SEARCH(("Some"),(E11))))',
           },
         },
+        {
+          range: "B2",
+          source: {
+            type: "List",
+            value: ["Apple", "Mango", "Avocado"],
+          },
+        },
       ],
       frozen_cols: 2,
       frozen_rows: 1,
@@ -854,7 +861,7 @@ var example = {
       background: "rgba(247,247,247,1)",
       fontSize: "13.333333px",
       format: "General",
-      wrapText: true
-    }
+      wrapText: true,
+    },
   ],
 };

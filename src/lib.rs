@@ -65,7 +65,7 @@ pub struct Cell {
 #[derive(Deserialize)]
 pub struct ValidationSource {
     pub r#type: String,
-    pub value: String,
+    pub value: Value,
 }
 
 #[derive(Deserialize)]
@@ -651,15 +651,36 @@ fn get_sheet_data(
                 let mut f1 = Element::new("formula1");
 
                 match v.source.r#type.as_str() {
+                    "List" => {
+                        // Handle array of values
+                        if let Some(arr) = v.source.value.as_array() {
+                            let quoted_values: Vec<String> = arr.iter().map(|item| {
+                                if let Some(s) = item.as_str() {
+                                    format!("\"{}\"", s)
+                                } else {
+                                    item.to_string()
+                                }
+                            }).collect();
+                            f1.add_value(quoted_values.join(","));
+                        } else if let Some(s) = v.source.value.as_str() {
+                            // Handle string value
+                            f1.add_value(format!("\"{}\"", s));
+                        }
+                    },
                     "RangeReference" => {
-                        f1.add_value(&v.source.value);
+                        if let Some(s) = v.source.value.as_str() {
+                            f1.add_value(s);
+                        }
                     },
                     "StringList" => {
-                       let value = format!("\"{}\"", v.source.value);
-                        f1.add_value(value);
+                        if let Some(s) = v.source.value.as_str() {
+                            f1.add_value(format!("\"{}\"", s));
+                        }
                     },
                     _ => {
-                        f1.add_value(&v.source.value);
+                        if let Some(s) = v.source.value.as_str() {
+                            f1.add_value(s);
+                        }
                     }
                 }
 
