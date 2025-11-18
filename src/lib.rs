@@ -652,16 +652,15 @@ fn get_sheet_data(
 
                 match v.source.r#type.as_str() {
                     "List" => {
-                        // Handle array of values
                         if let Some(arr) = v.source.value.as_array() {
-                            let quoted_values: Vec<String> = arr.iter().map(|item| {
+                            let items: Vec<String> = arr.iter().map(|item| {
                                 if let Some(s) = item.as_str() {
-                                    format!("\"{}\"", s)
+                                    s.to_owned()
                                 } else {
                                     item.to_string()
                                 }
                             }).collect();
-                            f1.add_value(quoted_values.join(","));
+                            f1.add_value(format!("\"{}\"", items.join(",")));
                         } else if let Some(s) = v.source.value.as_str() {
                             // Handle string value
                             f1.add_value(format!("\"{}\"", s));
