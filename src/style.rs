@@ -198,7 +198,7 @@ impl Border {
 }
 
 impl BorderProps {
-    pub fn to_xml_el(&self) -> Element {
+    pub fn to_xml_el(&self) -> Element<'_> {
         let el_name = match self.position {
             BorderPosition::Top => "top",
             BorderPosition::Right => "right",
