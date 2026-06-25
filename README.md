@@ -143,6 +143,28 @@ interface IRowData {
 interface IDataCell{
     v: string;
     s: number;
+    formula?: IFormula;
+}
+
+type IFormula = INormalFormula | ISharedFormulaMaster | ISharedFormulaFollower;
+
+interface INormalFormula {
+    type: "normal";
+    value: string;
+}
+
+interface ISharedFormulaMaster {
+    type: "shared";
+    role: "master";
+    si: string;
+    ref: string;
+    value: string;
+}
+
+interface ISharedFormulaFollower {
+    type: "shared";
+    role: "follower";
+    si: string;
 }
 
 interface IStyle {

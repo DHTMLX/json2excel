@@ -12,7 +12,7 @@ use zip::write::FileOptions;
 
 use std::io::Cursor;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use serde_json::Value;
 
 type Dict = HashMap<String, Value>;
@@ -60,6 +60,18 @@ pub struct Cell {
     pub v: Option<String>,
     pub s: Option<u32>,
     pub hyperlink: Option<String>,
+    pub formula: Option<CellFormula>,
+}
+
+#[derive(Clone, Deserialize)]
+pub struct CellFormula {
+    #[serde(rename = "type")]
+    pub formula_type: String,
+    pub role: Option<String>,
+    pub si: Option<String>,
+    #[serde(rename = "ref")]
+    pub reference: Option<String>,
+    pub value: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -118,7 +130,47 @@ enum CellValue {
     None,
     Value(String),
     Formula(String),
+    FormulaMetadata(CellFormula, Option<String>),
     SharedString(u32)
+}
+
+fn normalize_formula_value(value: &str, futures: &HashSet<&str>) -> String {
+    formulas::fix_formula(value.strip_prefix("=").unwrap_or(value), futures)
+}
+
+fn normalize_formula_metadata(formula: &CellFormula, futures: &HashSet<&str>) -> CellFormula {
+    let mut formula = formula.clone();
+    if let Some(value) = &formula.value {
+        formula.value = Some(normalize_formula_value(value, futures));
+    }
+    formula
+}
+
+fn formula_cached_value(value: &Option<String>) -> Option<String> {
+    value
+        .as_ref()
+        .filter(|value| !value.is_empty() && !value.starts_with("="))
+        .cloned()
+}
+
+fn formula_to_xml_element(formula: &CellFormula) -> Element<'static> {
+    let mut formula_el = Element::new("f");
+
+    if formula.formula_type == "shared" {
+        formula_el.add_attr("t", "shared");
+        if let Some(reference) = &formula.reference {
+            formula_el.add_attr("ref", reference.clone());
+        }
+        if let Some(si) = &formula.si {
+            formula_el.add_attr("si", si.clone());
+        }
+    }
+
+    if let Some(value) = &formula.value {
+        formula_el.add_value(value.clone());
+    }
+
+    formula_el
 }
 
 #[wasm_bindgen]
@@ -156,35 +208,42 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                         url: link.clone(),
                                     });
                                 }
-                                match &cell.v {
-                                    Some(value) => {
-                                        if !value.is_empty() {
-                                            match value.parse::<f64>() {
-                                                Ok(_) if !value.starts_with("0") || value.len() == 1 => {
-                                                    inner_cell.value = CellValue::Value(value.to_owned());
-                                                },
-                                                Err(_) | _ => {
-                                                    if value.starts_with("=") {
-                                                        // [FIXME] formula can be corrupted
-                                                        inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
-                                                    } else {
-                                                        shared_strings_count += 1;
-                                                        // [FIXME] N^2, slow
-                                                        match shared_strings.iter().position(|s| s == value) {
-                                                            Some(index) => {
-                                                                inner_cell.value = CellValue::SharedString(index as u32);
-                                                            },
-                                                            None => {
-                                                                inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
-                                                                shared_strings.push(value.to_owned());
+                                if let Some(formula) = &cell.formula {
+                                    inner_cell.value = CellValue::FormulaMetadata(
+                                        normalize_formula_metadata(formula, &futures),
+                                        formula_cached_value(&cell.v),
+                                    );
+                                } else {
+                                    match &cell.v {
+                                        Some(value) => {
+                                            if !value.is_empty() {
+                                                match value.parse::<f64>() {
+                                                    Ok(_) if !value.starts_with("0") || value.len() == 1 => {
+                                                        inner_cell.value = CellValue::Value(value.to_owned());
+                                                    },
+                                                    Err(_) | _ => {
+                                                        if value.starts_with("=") {
+                                                            // [FIXME] formula can be corrupted
+                                                            inner_cell.value = CellValue::Formula(normalize_formula_value(value, &futures));
+                                                        } else {
+                                                            shared_strings_count += 1;
+                                                            // [FIXME] N^2, slow
+                                                            match shared_strings.iter().position(|s| s == value) {
+                                                                Some(index) => {
+                                                                    inner_cell.value = CellValue::SharedString(index as u32);
+                                                                },
+                                                                None => {
+                                                                    inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
+                                                                    shared_strings.push(value.to_owned());
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                        None => ()
                                     }
-                                    None => ()
                                 }
 
                                 inner_row.push(inner_cell);
@@ -212,7 +271,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                             Err(_) | _ => {
                                                 if value.starts_with("=") {
                                                     // [FIXME] formula can be corrupted
-                                                    inner_cell.value = CellValue::Formula(formulas::fix_formula(&value[1..], &futures));
+                                                    inner_cell.value = CellValue::Formula(normalize_formula_value(value, &futures));
                                                 } else {
                                                     inner_cell.value = CellValue::SharedString(shared_strings.len() as u32);
                                                     shared_strings.push(value.to_owned());
@@ -586,6 +645,19 @@ fn get_sheet_data(
                     cell_el.add_children(vec![value_cell]);
                     utils::log!("formula {}", v)
                 },
+                CellValue::FormulaMetadata(ref formula, ref cached_value) => {
+                    let mut children = vec![formula_to_xml_element(formula)];
+                    if let Some(value) = cached_value {
+                        if value.parse::<f64>().is_err() {
+                            cell_el.add_attr("t", "str");
+                        }
+                        let mut value_cell = Element::new("v");
+                        value_cell.add_value(value.clone());
+                        children.push(value_cell);
+                    }
+                    cell_el.add_children(children);
+                    utils::log!("formula metadata")
+                },
                 CellValue::SharedString(ref s) => {
                     cell_el.add_attr("t", "s");
                     let mut value_cell = Element::new("v");
@@ -880,4 +952,68 @@ fn get_nav(sheets: Vec<(String, String)>) -> (String, String, String) {
         .add_children(workbook_children);
     
     (content_types.to_xml(), relationships.to_xml(), workbook.to_xml())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn formula(
+        formula_type: &str,
+        role: Option<&str>,
+        si: Option<&str>,
+        reference: Option<&str>,
+        value: Option<&str>,
+    ) -> CellFormula {
+        CellFormula {
+            formula_type: formula_type.to_string(),
+            role: role.map(|value| value.to_string()),
+            si: si.map(|value| value.to_string()),
+            reference: reference.map(|value| value.to_string()),
+            value: value.map(|value| value.to_string()),
+        }
+    }
+
+    #[test]
+    fn normal_formula_metadata_to_xml() {
+        let formula = formula("normal", None, None, None, Some("A10/$A$2"));
+
+        assert_eq!(
+            formula_to_xml_element(&formula).to_string(),
+            "<f>A10/$A$2</f>"
+        );
+    }
+
+    #[test]
+    fn shared_master_formula_metadata_to_xml() {
+        let formula = formula(
+            "shared",
+            Some("master"),
+            Some("0"),
+            Some("B11:B13"),
+            Some("A11/$A$2"),
+        );
+
+        assert_eq!(
+            formula_to_xml_element(&formula).to_string(),
+            r#"<f t="shared" ref="B11:B13" si="0">A11/$A$2</f>"#
+        );
+    }
+
+    #[test]
+    fn shared_follower_formula_metadata_to_xml() {
+        let formula = formula("shared", Some("follower"), Some("0"), None, None);
+
+        assert_eq!(
+            formula_to_xml_element(&formula).to_string(),
+            r#"<f t="shared" si="0"/>"#
+        );
+    }
+
+    #[test]
+    fn legacy_formula_value_keeps_working() {
+        let futures = formulas::get_future_functions();
+
+        assert_eq!(normalize_formula_value("=A1/$A$2", &futures), "A1/$A$2");
+    }
 }
