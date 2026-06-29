@@ -424,6 +424,11 @@ fn get_styles_data(style_table: StyleTable) -> String {
 
             xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
         }
+        if let Some(locked) = p.locked {
+            let mut protection = Element::new("protection");
+            protection.add_attr("locked", if locked { "1" } else { "0" });
+            xf.add_attr("applyProtection", "1").add_children(vec![protection]);
+        }
         xf
     }).collect();
 

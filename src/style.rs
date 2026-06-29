@@ -35,6 +35,7 @@ pub struct StyleProps {
     pub align_h: Option<String>,
     pub align_v: Option<String>,
     pub wrap_text: bool,
+    pub locked: Option<bool>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -80,6 +81,7 @@ pub struct XFSProps {
     pub align_h: Option<String>,
     pub align_v: Option<String>,
     pub wrap_text: bool,
+    pub locked: Option<bool>,
 }
 
 impl StyleTable {
@@ -137,6 +139,7 @@ impl StyleTable {
         xsf_props.align_h = st.align_h;
         xsf_props.align_v = st.align_v;
         xsf_props.wrap_text = st.wrap_text;
+        xsf_props.locked = st.locked;
         xsf_props.format_id = style.get("format").and_then(|format_name| {
             match format_name {
                 Value::String(s) => {
@@ -238,6 +241,7 @@ impl StyleProps {
             border: None,
             align_v: None,
             wrap_text: false,
+            locked: None,
         }
     }
 }
@@ -252,6 +256,7 @@ impl XFSProps {
             align_h: None,
             align_v: None,
             wrap_text: false, 
+            locked: None,
         }
     }
 }
@@ -293,19 +298,11 @@ fn style_to_props(styles: &HashMap<String, Value>) -> StyleProps {
             "borderLeft" => border.left = value.as_str().and_then(|s| str_to_border(s, BorderPosition::Left)),
             "wrapText" => {
                 // accept boolean, string or number values
-                match value {
-                    Value::Bool(b) => st.wrap_text = *b,
-                    Value::String(s) => st.wrap_text = s == "true" || s == "1",
-                    Value::Number(n) => {
-                        if let Some(i) = n.as_i64() {
-                            st.wrap_text = i != 0;
-                        } else if let Some(f) = n.as_f64() {
-                            st.wrap_text = f != 0.0;
-                        }
-                    }
-                    _ => (),
+                if let Some(v) = value_to_bool(value) {
+                    st.wrap_text = v;
                 }
             }
+            "locked" => st.locked = value_to_bool(value),
             _ => (),
         }
     }
@@ -314,6 +311,21 @@ fn style_to_props(styles: &HashMap<String, Value>) -> StyleProps {
     st.border = Some(border);
 
     st
+}
+
+fn value_to_bool(value: &Value) -> Option<bool> {
+    match value {
+        Value::Bool(b) => Some(*b),
+        Value::String(s) => Some(s == "true" || s == "1"),
+        Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                Some(i != 0)
+            } else {
+                n.as_f64().map(|f| f != 0.0)
+            }
+        }
+        _ => None,
+    }
 }
 
 fn color_to_argb(color: &str) -> Option<String> {
@@ -508,6 +520,7 @@ fn style_to_props_test() {
     styles.insert(String::from("textDecoration"), Value::String(String::from("underline")));
     styles.insert(String::from("align"), Value::String(String::from("left")));
     styles.insert(String::from("verticalAlign"), Value::String(String::from("bottom")));
+    styles.insert(String::from("locked"), Value::Bool(true));
     styles.insert(String::from("borderTop"), Value::String(String::from("1px solid #9AFF02")));
     styles.insert(
         String::from("borderRight"),
@@ -526,6 +539,7 @@ fn style_to_props_test() {
     assert_eq!(st.fill.unwrap().color, Some(String::from("FFFF0000")));
     assert_eq!(st.align_h, Some(String::from("left")));
     assert_eq!(st.align_v, Some(String::from("bottom")));
+    assert_eq!(st.locked, Some(true));
 
     let border = st.border.unwrap();
     assert_eq!(border.top.unwrap().color, String::from("FF9AFF02"));
