@@ -451,9 +451,7 @@ fn get_text_styles(styles: &Option<Vec<Dict>>) -> Vec<bool> {
         Some(styles) => styles
             .iter()
             .map(|style| match style.get("format") {
-                Some(Value::String(format)) => {
-                    format == "@" || format.eq_ignore_ascii_case("text")
-                },
+                Some(Value::String(format)) => format == "@",
                 _ => false,
             })
             .collect(),
