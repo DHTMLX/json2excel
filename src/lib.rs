@@ -413,6 +413,7 @@ fn get_styles_data(style_table: StyleTable) -> String {
                 .add_attr("applyBorder", "1")
                 .add_attr("borderId", id.to_string());
         });
+        let mut xf_children: Vec<Element> = vec![];
         if p.align_h.is_some() || p.align_v.is_some() || p.wrap_text {
             let mut alignment = Element::new("alignment");
 
@@ -422,8 +423,16 @@ fn get_styles_data(style_table: StyleTable) -> String {
                 alignment.add_attr("wrapText", "1");
             }
 
-            xf.add_attr("applyAlignment", "1").add_children(vec![alignment]);
+            xf.add_attr("applyAlignment", "1");
+            xf_children.push(alignment);
         }
+        if let Some(locked) = p.locked {
+            let mut protection = Element::new("protection");
+            protection.add_attr("locked", if locked { "1" } else { "0" });
+            xf.add_attr("applyProtection", "1");
+            xf_children.push(protection);
+        }
+        xf.add_children(xf_children);
         xf
     }).collect();
 
