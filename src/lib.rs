@@ -130,6 +130,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
 
     let mut shared_strings = vec!();
     let mut shared_strings_count = 0;
+    let text_styles = get_text_styles(&data.styles);
     let style_table = StyleTable::new(data.styles);
 
     let mut sheets_info: Vec<(String, String)> = vec!();
@@ -160,7 +161,7 @@ pub fn import_to_xlsx(raw_data: &JsValue) -> Vec<u8> {
                                     Some(value) => {
                                         if !value.is_empty() {
                                             match value.parse::<f64>() {
-                                                Ok(_) if !value.starts_with("0") || value.len() == 1 => {
+                                                Ok(_) if (!value.starts_with("0") || value.len() == 1) && !is_text_style(&cell.s, &text_styles) => {
                                                     inner_cell.value = CellValue::Value(value.to_owned());
                                                 },
                                                 Err(_) | _ => {
@@ -452,6 +453,26 @@ fn get_styles_data(style_table: StyleTable) -> String {
         .add_children(vec![formats_element, fonts_element, fills_element, borders_element, cell_xfs]);
     
     style_sheet.to_xml()
+}
+
+fn get_text_styles(styles: &Option<Vec<Dict>>) -> Vec<bool> {
+    match styles {
+        Some(styles) => styles
+            .iter()
+            .map(|style| match style.get("format") {
+                Some(Value::String(format)) => format == "@",
+                _ => false,
+            })
+            .collect(),
+        None => vec!(),
+    }
+}
+
+fn is_text_style(style: &Option<u32>, text_styles: &Vec<bool>) -> bool {
+    style
+        .and_then(|index| text_styles.get(index as usize))
+        .copied()
+        .unwrap_or(false)
 }
 
 fn cell_offsets_to_index(row: usize, col: usize) -> String {
