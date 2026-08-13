@@ -171,6 +171,22 @@ interface IStyle {
 ```
 
 
+### Versions
+
+- **1.6.0** — Cell locking (`locked` style). Preserve text-formatted numeric cells as strings.
+- **1.5.2** — Data validation lists: list sources and lists of values.
+- **1.5.1** — Renamed `textWrap` to `wrapText`.
+- **1.5.0** — Text wrapping.
+- **1.4.0** — Hyperlinks, frozen and hidden rows/columns, data validation.
+- **1.3.1** — Export numbers that start with zero as strings.
+- **1.3.0** — `convert()` is async. Extra styles: borders (style/size), vertical align, `fontFamily`. Renamed `textAlign` to `align`.
+- **1.2.1** — Smaller WASM bundle.
+- **1.2.0** — Formula export, sheet names with spaces. Fixes for shared strings, column widths, and sheet format.
+- **1.0.2** — UTF-8 encoding.
+- **1.0.1** — CDN link fixes.
+- **1.0.0** — Initial release.
+
+
 ### License
 
 MIT
